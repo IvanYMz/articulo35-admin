@@ -1,0 +1,62 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+const { id } = Astro.params; // id comes from the admin list (selected student)
+
+type StudentDetails = {
+    personalData: {
+        student_id: number;
+        full_name: string;
+        email: string;
+    };
+
+    academicRecords: {
+        student_code: string;
+        career: string;
+        average_score: number;
+        enrollment_cycle: string;
+        graduation_cycle: string;
+        approved_credits: number;
+        pending_credits: number;
+        division: string;
+    };
+
+    filePath: string;
+};
+
+// Fetch student info (API)
+let student: StudentDetails = {
+    personalData: {
+        student_id: 0,
+        full_name: "",
+        email: "",
+    },
+    academicRecords: {
+        student_code: "",
+        career: "",
+        average_score: 0,
+        enrollment_cycle: "",
+        graduation_cycle: "",
+        approved_credits: 0,
+        pending_credits: 0,
+        division: "",
+    },
+    filePath: "",
+};
+
+try {
+    const url = `http://localhost:4321/api/students_info/details/${id}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+        console.error("Error fetching academic records");
+    } else {
+        student = (await response.json()) as StudentDetails;
+    }
+} catch (err) {
+    console.error("Fetch error:", err);
+}
+---
+
+<Layout>
+    <h1>{student.personalData.full_name}</h1>
+</Layout>

@@ -41,7 +41,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   }
 
   if (userRole.role === "administrator") {
-    return redirect("/home");
+    return redirect("/");
   } 
 
   cookies.delete("sb-access-token", { path: "/" });
