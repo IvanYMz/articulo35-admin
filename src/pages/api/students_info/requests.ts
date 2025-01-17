@@ -33,7 +33,7 @@ export const GET: APIRoute = async () => {
     return new Response(recordsError?.message || "Error fetching records", { status: 500 });
   }
 
-  // Get unique `subject_id` s 
+  // Get unique `subject_id`
   const subjectIds = Array.from(
     new Set(
       records.flatMap((record) => record.requests?.map((req) => req.subject_id) || [])
