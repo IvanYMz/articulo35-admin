@@ -85,5 +85,5 @@ export const GET: APIRoute = async ({ params }) => {
     //filePath: fileData.file_path,
   };
 
-  return new Response(JSON.stringify(studentDetails), { status: 200 });
+  return new Response(JSON.stringify(studentDetails), { status: 200, headers: { "Content-Type": "application/json" }, });
 };
