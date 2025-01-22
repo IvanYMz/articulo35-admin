@@ -3,6 +3,15 @@ import Layout from "../../layouts/Layout.astro";
 
 const { id } = Astro.params; // id comes from the admin list (selected student)
 
+type request = {
+    subject_id: string;
+    status: string;
+    description: string;
+    available_subjects: {
+        name: string;
+    };
+};
+
 type StudentDetails = {
     personalData: {
         student_id: number;
@@ -20,6 +29,8 @@ type StudentDetails = {
         pending_credits: number;
         division: string;
     };
+
+    requests: request[];
 
     filePath: string;
 };
@@ -41,6 +52,7 @@ let student: StudentDetails = {
         pending_credits: 0,
         division: "",
     },
+    requests: [],
     filePath: "",
 };
 
@@ -48,7 +60,7 @@ try {
     const url = `http://localhost:4321/api/students_info/details/${id}`;
     const response = await fetch(url);
     if (!response.ok) {
-        console.error("Error fetching academic records");
+        console.error("Error fetching student information");
     } else {
         student = (await response.json()) as StudentDetails;
     }
@@ -59,4 +71,13 @@ try {
 
 <Layout>
     <h1>{student.personalData.full_name}</h1>
+    {student.requests.length > 0 ? (
+        <ul>
+            {student.requests.map((request) => (
+                <li>{request.available_subjects.name}</li>
+            ))}
+        </ul>
+    ) : (
+        <p>No requests</p>
+    )}
 </Layout>

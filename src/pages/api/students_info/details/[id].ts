@@ -32,7 +32,7 @@ export const GET: APIRoute = async ({ params }) => {
     });
   }
 
-  const { data: fileData, error: fileError } = await supabase
+  /*const { data: fileData, error: fileError } = await supabase
     .from("files")
     .select(`file_path`)
     .eq("student_id", id)
@@ -40,6 +40,19 @@ export const GET: APIRoute = async ({ params }) => {
 
   if (fileError || !fileData) {
     return new Response(fileError?.message || "Error fetching file data", {
+      status: 500
+    });
+  }*/
+
+  // Fetch requests
+  const { data: requests, error: requestsError } = await supabase
+    .from("requests")
+    .select(`subject_id, status, description,
+    available_subjects (name)`) // Nested query 
+    .eq("student_id", id);
+
+  if (requestsError || !requests) {
+    return new Response(requestsError?.message || "Error fetching requests", {
       status: 500
     });
   }
@@ -61,8 +74,15 @@ export const GET: APIRoute = async ({ params }) => {
       pending_credits: academicRecords.pending_credits,
       division: academicRecords.division,
     },
-    
-    filePath: fileData.file_path,
+
+    requests: requests.map((request) => ({
+      subject_id: request.subject_id,
+      status: request.status,
+      description: request.description,
+      available_subjects: request.available_subjects,
+    })),
+
+    //filePath: fileData.file_path,
   };
 
   return new Response(JSON.stringify(studentDetails), { status: 200 });
