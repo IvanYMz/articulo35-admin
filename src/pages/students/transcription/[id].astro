@@ -1,5 +1,55 @@
 ---
-const { id } = Astro.params; 
+import Layout from "../../../layouts/Layout.astro";
+
+interface UrlResponse {
+    audioUrl: string;
+    transcriptionContent: string;
+    error?: string;
+}
+
+const { id } = Astro.params;
+
+let data: UrlResponse | null = null;
+
+try {
+    const response = await fetch(
+        `http://localhost:4321/api/students_info/transcription/${id}`,
+    );
+    if (!response.ok) {
+        throw new Error(`Failed to fetch data: ${response.statusText}`);
+    }
+    data = (await response.json()) as UrlResponse;
+} catch (error) {
+    data = {
+        audioUrl: "",
+        transcriptionContent: "",
+        error: (error as Error).message,
+    };
+}
 ---
 
-<h3>{id}</h3>
+<Layout
+    title="Transcription"
+    description="Transcription of student's audio file."
+>
+    {
+        data?.error ? (
+            <p style="color: red;">Error: {data.error}</p>
+        ) : (
+            <div>
+                <h3>Student ID: {id}</h3>
+
+                <h4>Audio</h4>
+                <audio controls>
+                    <source src={data?.audioUrl} type="audio/mpeg" />
+                    Your browser does not support the audio element.
+                </audio>
+
+                <h4>Transcription</h4>
+                <textarea readonly style="width: 100%; height: 200px;">
+                    {data?.transcriptionContent}
+                </textarea>
+            </div>
+        )
+    }
+</Layout>

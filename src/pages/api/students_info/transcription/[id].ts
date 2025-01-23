@@ -1,58 +1,72 @@
-// TESTING PATHS FOR AUDIO AND TEXT/PDF FILES 
 import type { APIRoute } from "astro";
 import { supabase } from "../../../../lib/supabase";
 
-export const GET: APIRoute = async ({ params }) => {
+async function getSignedUrl(id: string, folder: string): Promise<string> {
+    const { data: fileList, error: listError } = await supabase.storage.from("files").list(`${id}/${folder}`);
 
+    if (listError) {
+        throw new Error(`Error fetching file list for folder "${folder}": ${listError.message}`);
+    }
+
+    if (!fileList || fileList.length === 0) {
+        throw new Error(`No files found in folder "${folder}" for ID: ${id}`);
+    }
+
+    const filePath = `${id}/${folder}/${fileList[0].name}`;
+    const { data: signedUrlData, error: signedUrlError } = await supabase.storage.from("files").createSignedUrl(filePath, 900);
+
+    if (signedUrlError) {
+        throw new Error(`Error creating signed URL for file "${filePath}": ${signedUrlError.message}`);
+    }
+
+    return signedUrlData.signedUrl;
+};
+
+async function getFileContent(id: string, folder: string): Promise<string> {
+    const { data: fileList, error: listError } = await supabase.storage.from("files").list(`${id}/${folder}`);
+
+    if (listError) {
+        throw new Error(`Error fetching file list for folder "${folder}": ${listError.message}`);
+    }
+
+    if (!fileList || fileList.length === 0) {
+        throw new Error(`No files found in folder "${folder}" for ID: ${id}`);
+    }
+
+    const filePath = `${id}/${folder}/${fileList[0].name}`;
+    const { data, error } = await supabase.storage.from("files").download(filePath);
+
+    if (error) {
+        throw new Error(`Error downloading file "${filePath}": ${error.message}`);
+    }
+
+    const content = await data.text();
+    return content;
+};
+
+export const GET: APIRoute = async ({ params }) => {
     const { id } = params;
 
     if (!id) {
-        return new Response("Student ID is required", { status: 400 });
+        return new Response(JSON.stringify({ error: "Student ID is required" }), {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+        });
     }
 
-    const { data: audioFileData, error: audioFileError } = await supabase
-        .storage
-        .from("files")
-        .list(`${id}/audio`);
+    try {
+        const audioUrl = await getSignedUrl(id, "audio");
 
-    if (audioFileError) {
-        return new Response(audioFileError.message, { status: 500 });
+        const transcriptionContent = await getFileContent(id, "transcription");
+
+        return new Response(
+            JSON.stringify({ audioUrl, transcriptionContent }),
+            { status: 200, headers: { "Content-Type": "application/json" } }
+        );
+    } catch (error) {
+        return new Response(JSON.stringify({ error: (error as Error).message }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+        });
     }
-
-    const path1 = id + '/audio/' + audioFileData[0].name;
-
-    console.log(path1);
-
-    const { data: audio, error: audioError } = await supabase.storage.from('files').createSignedUrl(path1, 900);
-
-    if (audioError) {
-        return new Response(audioError.message, { status: 500 });
-    }
-    console.log(audio.signedUrl);
-
-    //-----------------------------------------------------------------------------------
-
-    const { data: transcriptionData, error: transcriptionError } = await supabase
-        .storage
-        .from("files")
-        .list(`${id}/transcription`);
-
-    if (transcriptionError) {
-        return new Response(transcriptionError.message, { status: 500 });
-    }
-
-    const path = id + '/transcription/' + transcriptionData[0].name;
-
-    console.log(path);
-
-    const { data, error } = await supabase.storage.from('files').createSignedUrl(path, 900);
-
-    if (error) {
-        return new Response(error.message, { status: 500 });
-    }
-    console.log(data.signedUrl);
-
-    //-----------------------------------------------------------------------------------
-
-    return new Response(JSON.stringify(transcriptionData), { status: 200, headers: { "Content-Type": "application/json" }, });
 };

@@ -3,7 +3,7 @@ import Layout from "../../layouts/Layout.astro";
 
 const { id } = Astro.params; // id comes from the admin list (selected student)
 
-type request = {
+type Request = {
     subject_id: string;
     status: string;
     description: string;
@@ -30,7 +30,7 @@ type StudentDetails = {
         division: string;
     };
 
-    requests: request[];
+    requests: Request[];
 
     filePath: string;
 };
