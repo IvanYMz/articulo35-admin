@@ -32,18 +32,6 @@ export const GET: APIRoute = async ({ params }) => {
     });
   }
 
-  /*const { data: fileData, error: fileError } = await supabase
-    .from("files")
-    .select(`file_path`)
-    .eq("student_id", id)
-    .single();
-
-  if (fileError || !fileData) {
-    return new Response(fileError?.message || "Error fetching file data", {
-      status: 500
-    });
-  }*/
-
   // Fetch requests
   const { data: requests, error: requestsError } = await supabase
     .from("requests")
@@ -81,8 +69,6 @@ export const GET: APIRoute = async ({ params }) => {
       description: request.description,
       available_subjects: request.available_subjects,
     })),
-
-    //filePath: fileData.file_path,
   };
 
   return new Response(JSON.stringify(studentDetails), { status: 200, headers: { "Content-Type": "application/json" }, });

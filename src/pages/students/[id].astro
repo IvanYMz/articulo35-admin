@@ -31,8 +31,6 @@ type StudentDetails = {
     };
 
     requests: Request[];
-
-    filePath: string;
 };
 
 // Fetch student info (API)
@@ -53,7 +51,6 @@ let student: StudentDetails = {
         division: "",
     },
     requests: [],
-    filePath: "",
 };
 
 try {
@@ -71,14 +68,16 @@ try {
 
 <Layout>
     <h1>{student.personalData.full_name}</h1>
-    {student.requests.length > 0 ? (
-        <ul>
-            {student.requests.map((request) => (
-                <li>{request.available_subjects.name}</li>
-            ))}
-        </ul>
-    ) : (
-        <p>No requests</p>
-    )}
+    {
+        student.requests.length > 0 ? (
+            <ul>
+                {student.requests.map((request) => (
+                    <li>{request.available_subjects.name}</li>
+                ))}
+            </ul>
+        ) : (
+            <p>No requests</p>
+        )
+    }
     <a href=`/students/transcription/${id}`>Ver declaración</a>
 </Layout>

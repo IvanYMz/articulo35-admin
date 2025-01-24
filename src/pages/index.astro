@@ -1,16 +1,22 @@
 ---
 import Layout from "../layouts/Layout.astro";
 
-// Handle session
-const accessToken = Astro.cookies.get("sb-access-token");
-const refreshToken = Astro.cookies.get("sb-refresh-token");
+function verifyTokens() {
+  const accessToken = Astro.cookies.get("sb-access-token");
+  const refreshToken = Astro.cookies.get("sb-refresh-token");
 
-if (!accessToken || !refreshToken) {
-  return Astro.redirect("/signin");
+  if (!accessToken || !refreshToken) {
+    return "/signin";
+  }
+  return "/home";
 }
-return Astro.redirect("/home");
+
+const redirectPath = verifyTokens();
+if (redirectPath) {
+  return Astro.redirect(redirectPath);
+}
 ---
 
 <Layout title="index">
-  <p>Loading...</p>
+  <p>...</p>
 </Layout>
