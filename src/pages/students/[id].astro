@@ -1,39 +1,11 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import type { StudentDetails } from "../../types/types";
 
-const { id } = Astro.params; // id comes from the admin list (selected student)
+// Extract the `id` parameter from the Astro route (selected student)
+const { id } = Astro.params;
 
-type Request = {
-    subject_id: string;
-    status: string;
-    description: string;
-    available_subjects: {
-        name: string;
-    };
-};
-
-type StudentDetails = {
-    personalData: {
-        student_id: number;
-        full_name: string;
-        email: string;
-    };
-
-    academicRecords: {
-        student_code: string;
-        career: string;
-        average_score: number;
-        enrollment_cycle: string;
-        graduation_cycle: string;
-        approved_credits: number;
-        pending_credits: number;
-        division: string;
-    };
-
-    requests: Request[];
-};
-
-// Fetch student info (API)
+// Initialize a default student object with empty values
 let student: StudentDetails = {
     personalData: {
         student_id: 0,
@@ -53,12 +25,14 @@ let student: StudentDetails = {
     requests: [],
 };
 
+// Fetch student details from the API
 try {
-    const url = `http://localhost:4321/api/students_info/details/${id}`;
-    const response = await fetch(url);
+    const response = await fetch(`http://localhost:4321/api/students_info/details/${id}`);
+
     if (!response.ok) {
         console.error("Error fetching student information");
     } else {
+        // Parse the response as JSON and cast it to the `StudentDetails` type
         student = (await response.json()) as StudentDetails;
     }
 } catch (err) {
@@ -68,16 +42,18 @@ try {
 
 <Layout>
     <h1>{student.personalData.full_name}</h1>
-    {
-        student.requests.length > 0 ? (
-            <ul>
-                {student.requests.map((request) => (
-                    <li>{request.available_subjects.name}</li>
-                ))}
-            </ul>
-        ) : (
-            <p>No requests</p>
-        )
-    }
-    <a href=`/students/transcription/${id}`>Ver declaración</a>
+
+    {student.requests.length > 0 ? (
+        <ul>
+            {student.requests.map((request) => (
+                <li>
+                    {request.available_subjects.name}
+                </li>
+            ))}
+        </ul>
+    ) : (
+        <p>No requests</p>
+    )}
+
+    <a href={`/students/transcription/${id}`}>Ver declaración</a>
 </Layout>

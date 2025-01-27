@@ -1,25 +1,26 @@
 ---
 import Layout from "../../../layouts/Layout.astro";
+import type { UrlResponse } from "../../../types/types";
 
-interface UrlResponse {
-    audioUrl: string;
-    transcriptionContent: string;
-    error?: string;
-}
-
+// Extract the `id` parameter from the Astro route
 const { id } = Astro.params;
 
+// Initialize a variable to store the fetched data or error
 let data: UrlResponse | null = null;
 
+// Fetch data from the API endpoint
 try {
-    const response = await fetch(
-        `http://localhost:4321/api/students_info/transcription/${id}`,
-    );
+    const response = await fetch(`http://localhost:4321/api/students_info/transcription/${id}`);
+
+    // Check if the response is not OK (e.g., 404, 500, etc.)
     if (!response.ok) {
         throw new Error(`Failed to fetch data: ${response.statusText}`);
     }
+
+    // Parse the response as JSON and cast it to the `UrlResponse` type
     data = (await response.json()) as UrlResponse;
 } catch (error) {
+    // If an error occurs, set the `data` object to include the error message
     data = {
         audioUrl: "",
         transcriptionContent: "",
@@ -33,9 +34,12 @@ try {
     description="Transcription of student's audio file."
 >
     {
+        // Check if there is an error in the data
         data?.error ? (
-            <p style="color: red;">Error: {data.error}</p>
+            // Display the error message in red
+            <p>Error: {data.error}</p>
         ) : (
+            // If no error, display the student's audio and transcription
             <div>
                 <h3>Student ID: {id}</h3>
 

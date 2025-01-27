@@ -1,53 +1,47 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { supabase } from "../lib/supabase";
+import type { Student } from "../types/types";
 
-type Student = {
-    id: number;
-    student_id: number;
-    name: string;
-    subjects: string[];
-};
-
+// Get the access and refresh tokens from cookies
 const accessToken = Astro.cookies.get("sb-access-token");
 const refreshToken = Astro.cookies.get("sb-refresh-token");
 
+// If either token is missing, redirect to the sign-in page
 if (!accessToken || !refreshToken) {
-  return Astro.redirect("/signin");
+    return Astro.redirect("/signin");
 }
 
+// Attempt to set the session using the tokens
 let session;
 try {
-  session = await supabase.auth.setSession({
-    refresh_token: refreshToken.value,
-    access_token: accessToken.value,
-  });
-  if (session.error) {
-    Astro.cookies.delete("sb-access-token", {
-      path: "/",
+    session = await supabase.auth.setSession({
+        refresh_token: refreshToken.value,
+        access_token: accessToken.value,
     });
-    Astro.cookies.delete("sb-refresh-token", {
-      path: "/",
-    });
-    return Astro.redirect("/signin");
-  }
+
+    // If there is an error setting the session, delete the cookies and redirect to sign-in
+    if (session.error) {
+        Astro.cookies.delete("sb-access-token", { path: "/" });
+        Astro.cookies.delete("sb-refresh-token", { path: "/" });
+        return Astro.redirect("/signin");
+    }
 } catch (error) {
-  Astro.cookies.delete("sb-access-token", {
-    path: "/",
-  });
-  Astro.cookies.delete("sb-refresh-token", {
-    path: "/",
-  });
-  return Astro.redirect("/signin");
+    // If an error occurs, delete the cookies and redirect to sign-in
+    Astro.cookies.delete("sb-access-token", { path: "/" });
+    Astro.cookies.delete("sb-refresh-token", { path: "/" });
+    return Astro.redirect("/signin");
 }
 
-// Fetch data
+// Fetch student data from the API
 let students: Student[] = [];
 try {
     const response = await fetch("http://localhost:4321/api/students_info/requests");
+
     if (!response.ok) {
         console.error("Error fetching academic records");
     } else {
+        // Parse the response as JSON and cast it to the `Student[]` type
         students = (await response.json()) as Student[];
     }
 } catch (err) {
@@ -58,24 +52,26 @@ try {
 <Layout title="Home">
     <section>
         <h2>Peticiones de oportunidad para Artículo 35</h2>
-        {
-            students.length > 0 ? (
-                <ul>
-                    {students.map((student) => (
-                        <li>
-                            <strong>{student.name}</strong>
-                            <ul>
-                                {student.subjects.map((subject) => (
-                                    <li>{subject}</li>
-                                ))}
-                            </ul>
-                            <a href={`/students/${student.student_id}`}>Detalles</a>
-                        </li>
-                    ))}
-                </ul>
-            ) : (
-                <p>No student records available.</p>
-            )
-        }
+
+        {students.length > 0 ? (
+            <!-- If there are students, display them in a list -->
+            <ul>
+                {students.map((student) => (
+                    <li>
+                        <strong>{student.name}</strong>
+
+                        <ul>
+                            {student.subjects.map((subject, index) => (
+                                <li >{subject}</li>
+                            ))}
+                        </ul>
+
+                        <a href={`/students/${student.student_id}`}>Detalles</a>
+                    </li>
+                ))}
+            </ul>
+        ) : (
+            <p>No student records available.</p>
+        )}
     </section>
 </Layout>
