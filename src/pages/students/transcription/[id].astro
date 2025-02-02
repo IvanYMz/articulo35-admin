@@ -2,58 +2,60 @@
 import Layout from "../../../layouts/Layout.astro";
 import type { UrlResponse } from "../../../types/types";
 
-// Extract the `id` parameter from the Astro route
 const { id } = Astro.params;
 
-// Initialize a variable to store the fetched data or error
 let data: UrlResponse | null = null;
 
-// Fetch data from the API endpoint
 try {
     const response = await fetch(`http://localhost:4321/api/students_info/transcription/${id}`);
 
-    // Check if the response is not OK (e.g., 404, 500, etc.)
     if (!response.ok) {
         throw new Error(`Failed to fetch data: ${response.statusText}`);
     }
 
-    // Parse the response as JSON and cast it to the `UrlResponse` type
     data = (await response.json()) as UrlResponse;
 } catch (error) {
-    // If an error occurs, set the `data` object to include the error message
     data = {
         audioUrl: "",
         transcriptionContent: "",
         error: (error as Error).message,
     };
 }
----
 
+---
 <Layout
     title="Transcription"
     description="Transcription of student's audio file."
 >
-    {
-        // Check if there is an error in the data
-        data?.error ? (
-            // Display the error message in red
-            <p>Error: {data.error}</p>
-        ) : (
-            // If no error, display the student's audio and transcription
-            <div>
-                <h3>Student ID: {id}</h3>
+    {data?.error ? (
+        <p style="color: red;">Error: {data.error}</p>
+    ) : (
+        <div>
+            <h3>Student ID: {id}</h3>
 
-                <h4>Audio</h4>
+            <h4>Audio</h4>
+            {data?.audioUrl ? (
                 <audio controls>
-                    <source src={data?.audioUrl} type="audio/mpeg" />
+                    <source src={data.audioUrl} type="audio/mpeg" />
                     Your browser does not support the audio element.
                 </audio>
+            ) : (
+                <div>
+                    <p>No audio file found. Please upload an audio file.</p>
+                    <input type="file" accept="audio/*" />
+                </div>
+            )}
 
-                <h4>Transcription</h4>
-                <textarea readonly style="width: 100%; height: 200px;">
-                    {data?.transcriptionContent}
+            <h4>Transcription</h4>
+            {data?.transcriptionContent ? (
+                <textarea readonly>
+                    {data.transcriptionContent}
                 </textarea>
-            </div>
-        )
-    }
+            ) : data?.audioUrl ? (
+                <button>Transcribe Audio</button>
+            ) : (
+                <p>No transcription available. Upload an audio file first.</p>
+            )}
+        </div>
+    )}
 </Layout>

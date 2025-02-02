@@ -27,7 +27,9 @@ let student: StudentDetails = {
 
 // Fetch student details from the API
 try {
-    const response = await fetch(`http://localhost:4321/api/students_info/details/${id}`);
+    const response = await fetch(
+        `http://localhost:4321/api/students_info/details/${id}`,
+    );
 
     if (!response.ok) {
         console.error("Error fetching student information");
@@ -43,17 +45,89 @@ try {
 <Layout>
     <h1>{student.personalData.full_name}</h1>
 
-    {student.requests.length > 0 ? (
-        <ul>
-            {student.requests.map((request) => (
-                <li>
-                    {request.available_subjects.name}
-                </li>
-            ))}
-        </ul>
-    ) : (
-        <p>No requests</p>
-    )}
-
+    {
+        student.requests.length > 0 ? (
+            <ul>
+                {student.requests.map((request) => (
+                    <li>{request.available_subjects.name}</li>
+                ))}
+            </ul>
+        ) : (
+            <p>No requests</p>
+        )
+    }
     <a href={`/students/transcription/${id}`}>Ver declaración</a>
+
+    {
+        student.requests.length > 0 && (
+            <div>
+                <button id="accept" data-id={id} data-status="accepted">
+                    Aprobar
+                </button>
+                <button id="deny" data-id={id} data-status="rejected">
+                    Denegar
+                </button>
+            </div>
+        )
+    }
 </Layout>
+
+<script>
+    // Get the accept and deny buttons
+    const acceptButton = document.getElementById("accept");
+    const denyButton = document.getElementById("deny");
+
+    if (!acceptButton || !denyButton) {
+        throw new Error("Buttons not found");
+    }
+
+    // Add event listeners (click) to the buttons
+    acceptButton.addEventListener("click", () => {
+        const studentId = acceptButton.dataset.id;
+        const status = acceptButton.dataset.status;
+
+        if (!studentId || !status) {
+            throw new Error("ID or Status not found");
+        }
+
+        handleStatusChange(studentId, status);
+    });
+
+    denyButton.addEventListener("click", () => {
+        const studentId = denyButton.dataset.id;
+        const status = denyButton.dataset.status;
+
+        if (!studentId || !status) {
+            throw new Error("ID or Status not found");
+        }
+
+        handleStatusChange(studentId, status);
+    });
+
+    async function handleStatusChange(studentId: string, status: string) {
+        try {
+            const response = await fetch(
+                "http://localhost:4321/api/students_info/request_status",
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        student_id: studentId,
+                        requestStatus: status,
+                    }),
+                },
+            );
+
+            if (!response.ok) {
+                console.error("Error updating student requests");
+            } else {
+                // Reload the page to reflect the changes
+                location.reload();
+            }
+        } catch (err) {
+            console.error("Fetch error:", err);
+        }
+    }
+</script>

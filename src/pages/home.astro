@@ -62,9 +62,14 @@ try {
 
                         <ul>
                             {student.subjects.map((subject, index) => (
-                                <li >{subject}</li>
+                                <li>{subject.name}</li>
                             ))}
                         </ul>
+                        {(student.subjects[0] && student.subjects[0].status  === "under_review") ? (
+                            <p>Estado: Pendiente</p>
+                        ) : (
+                            <p>Estado: {student.subjects[0].status}</p>
+                        )}
 
                         <a href={`/students/${student.student_id}`}>Detalles</a>
                     </li>

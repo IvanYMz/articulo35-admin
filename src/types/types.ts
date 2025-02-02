@@ -4,7 +4,7 @@ export type Student = {
     id: number;
     student_id: number;
     name: string;
-    subjects: string[];
+    subjects: {name: string, status: string}[];
 };
 
 export type StudentDetails = {
@@ -30,7 +30,7 @@ export type AcademicRecord = {
     id: number;
     student_id: number;
     full_name: string;
-    requests: { subject_id: number }[];
+    requests: { subject_id: number, status: string }[];
 };
 
 export type AvailableSubject = {

@@ -5,13 +5,15 @@ import type { AcademicRecord, AvailableSubject, Student } from "../../../types/t
 async function fetchAcademicRecords(): Promise<AcademicRecord[]> {
   const { data, error } = await supabase
     .from("academic_records")
-    .select(`student_id, full_name, requests(subject_id)`);
+    .select(`student_id, full_name, requests(subject_id, status)`)
+    .not("requests", "is", null);  // Filter out records without requests
 
   if (error) {
     throw new Error(error.message);
   }
   return data as AcademicRecord[];
 }
+
 
 async function fetchAvailableSubjects(subjectIds: number[]): Promise<AvailableSubject[]> {
   const { data, error } = await supabase
@@ -26,24 +28,20 @@ async function fetchAvailableSubjects(subjectIds: number[]): Promise<AvailableSu
 }
 
 function mapStudents(records: AcademicRecord[], subjects: AvailableSubject[]): Student[] {
-  // Create a Map to store subject names for quick lookup by subject ID
-  const subjectMap = new Map(subjects.map(function (subject) {
-    return [subject.id, subject.name];
-  }));
+  // Mapeo rápido de IDs de materias a nombres
+  const subjectMap = new Map(subjects.map(subject => [subject.id, subject.name]));
 
-  // Map each academic record to a student object
-  return records.map(function (record) {
-    return {
+  return records.map(record => ({
       id: record.id,
       student_id: record.student_id,
       name: record.full_name,
-      // Map each requested subject ID to its name using the subjectMap
-      subjects: record.requests?.map(function (req) {
-        return subjectMap.get(req.subject_id) || "Unknown Subject";
-      }) || [],
-    };
-  });
+      subjects: record.requests?.map(req => ({
+          name: subjectMap.get(req.subject_id) || "Unknown Subject",
+          status: req.status || "Unknown Status",  // Incluimos el estado aquí
+      })) || [],
+  }));
 }
+
 
 export const GET: APIRoute = async function () {
   try {

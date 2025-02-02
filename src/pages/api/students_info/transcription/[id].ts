@@ -1,8 +1,7 @@
 import type { APIRoute } from "astro";
 import { supabase } from "../../../../lib/supabase";
 
-async function getSignedUrl(id: string, folder: string): Promise<string> {
-    // Fetch the list of files in the specified folder
+async function getSignedUrl(id: string, folder: string): Promise<string | null> {
     const { data: fileList, error: listError } = await supabase.storage
         .from("files")
         .list(`${id}/${folder}`);
@@ -12,12 +11,11 @@ async function getSignedUrl(id: string, folder: string): Promise<string> {
     }
 
     if (!fileList || fileList.length === 0) {
-        throw new Error(`No files found in folder "${folder}" for ID: ${id}`);
+        return null;  // If there are no files, we return null
     }
 
     const filePath = `${id}/${folder}/${fileList[0].name}`;
 
-    // Generate a signed URL for the file (valid for 900 seconds)
     const { data: signedUrlData, error: signedUrlError } = await supabase.storage
         .from("files")
         .createSignedUrl(filePath, 900);
@@ -29,8 +27,7 @@ async function getSignedUrl(id: string, folder: string): Promise<string> {
     return signedUrlData.signedUrl;
 }
 
-async function getFileContent(id: string, folder: string): Promise<string> {
-    // Fetch the list of files in the specified folder
+async function getFileContent(id: string, folder: string): Promise<string | null> {
     const { data: fileList, error: listError } = await supabase.storage
         .from("files")
         .list(`${id}/${folder}`);
@@ -40,7 +37,7 @@ async function getFileContent(id: string, folder: string): Promise<string> {
     }
 
     if (!fileList || fileList.length === 0) {
-        throw new Error(`No files found in folder "${folder}" for ID: ${id}`);
+        return null;  // If there are no files, we return null
     }
 
     const filePath = `${id}/${folder}/${fileList[0].name}`;
@@ -49,7 +46,6 @@ async function getFileContent(id: string, folder: string): Promise<string> {
         .from("files")
         .download(filePath);
 
-    // Handle errors when downloading the file
     if (error) {
         throw new Error(`Error downloading file "${filePath}": ${error.message}`);
     }
@@ -61,7 +57,6 @@ async function getFileContent(id: string, folder: string): Promise<string> {
 export const GET: APIRoute = async function ({ params }) {
     const { id } = params;
 
-    // Validate ID 
     if (!id) {
         return new Response(
             JSON.stringify({ error: "Student ID is required" }),
@@ -74,18 +69,19 @@ export const GET: APIRoute = async function ({ params }) {
 
     try {
         const audioUrl = await getSignedUrl(id, "audio");
-
         const transcriptionContent = await getFileContent(id, "transcription");
 
         return new Response(
-            JSON.stringify({ audioUrl, transcriptionContent }),
+            JSON.stringify({
+                audioUrl: audioUrl ?? null,  // If there's no audio, we return null
+                transcriptionContent: transcriptionContent ?? null,  // If there's no transcription, we return null
+            }),
             {
                 status: 200,
                 headers: { "Content-Type": "application/json" },
             }
         );
     } catch (error) {
-        // Handle errors and return an appropriate response
         return new Response(
             JSON.stringify({ error: (error as Error).message }),
             {
