@@ -21,12 +21,9 @@ try {
         error: (error as Error).message,
     };
 }
-
 ---
-<Layout
-    title="Transcription"
-    description="Transcription of student's audio file."
->
+
+<Layout title="Transcription" description="Transcription of student's audio file.">
     {data?.error ? (
         <p style="color: red;">Error: {data.error}</p>
     ) : (
@@ -40,11 +37,13 @@ try {
                     Your browser does not support the audio element.
                 </audio>
             ) : (
-                <div>
-                    <p>No audio file found. Please upload an audio file.</p>
-                    <input type="file" accept="audio/*" />
-                </div>
+                <p>No audio file found. Please upload an audio file.</p>
             )}
+
+            <form id="uploadForm" data-id={id}>
+                <input type="file" id="audioFile" accept="audio/*" required />
+                <button type="submit">Upload Audio</button>
+            </form>
 
             <h4>Transcription</h4>
             {data?.transcriptionContent ? (
@@ -59,3 +58,44 @@ try {
         </div>
     )}
 </Layout>
+
+<script>
+    const form = document.getElementById("uploadForm") as HTMLFormElement;
+
+    if (form) {
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            
+            const studentId = form.getAttribute("data-id") as string;
+            const fileInput = document.getElementById("audioFile") as HTMLInputElement;
+        
+            if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+                alert("Please select an audio file.");
+                return;
+            };
+
+            const file = fileInput.files[0];
+
+            const formData = new FormData();
+            formData.append("audio", file);
+            formData.append("id", studentId);
+
+            try {
+                const response = await fetch("http://localhost:4321/api/students_info/transcription/upload_statement", {
+                    method: "PUT",
+                    body: formData,
+                });
+
+                if (response.ok) {
+                    alert("Audio uploaded successfully!");
+                    window.location.reload();
+                } else {
+                    alert("Error uploading audio.");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Error uploading audio.");
+            }
+        });
+    };
+</script>

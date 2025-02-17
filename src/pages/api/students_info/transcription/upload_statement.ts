@@ -1,0 +1,30 @@
+import { supabase } from "../../../../lib/supabase";
+import type { APIRoute } from "astro";
+
+export const PUT: APIRoute = async ({ request }) => {
+    try {
+        // Get the form data
+        const formData = await request.formData();
+        const file = formData.get("audio") as File;
+        const id = formData.get("id") as string;
+
+        if (!file || !id) {
+            return new Response(JSON.stringify({ error: "Missing file or ID" }), { status: 400 });
+        }
+
+        const filePath = `${id}/audio/${file.name}`;
+
+        // Upload file to Supabase storage
+        const { error } = await supabase.storage
+            .from("files")
+            .upload(filePath, file, { upsert: true });
+
+        if (error) {
+            throw error;
+        }
+
+        return new Response(JSON.stringify('Audio uploaded successfully!'), { status: 200 });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: (error as Error).message }), { status: 500 });
+    }
+};

@@ -28,7 +28,6 @@ async function fetchAvailableSubjects(subjectIds: number[]): Promise<AvailableSu
 }
 
 function mapStudents(records: AcademicRecord[], subjects: AvailableSubject[]): Student[] {
-  // Mapeo rápido de IDs de materias a nombres
   const subjectMap = new Map(subjects.map(subject => [subject.id, subject.name]));
 
   return records.map(record => ({
@@ -37,7 +36,7 @@ function mapStudents(records: AcademicRecord[], subjects: AvailableSubject[]): S
       name: record.full_name,
       subjects: record.requests?.map(req => ({
           name: subjectMap.get(req.subject_id) || "Unknown Subject",
-          status: req.status || "Unknown Status",  // Incluimos el estado aquí
+          status: req.status || "Unknown Status",
       })) || [],
   }));
 }
