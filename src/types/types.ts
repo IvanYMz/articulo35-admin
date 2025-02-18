@@ -50,6 +50,12 @@ export type Request = {
 
 export type UrlResponse = {
     audioUrl: string;
-    transcriptionContent: string;
+    audioFileName: string;
+    transcriptionContent: TranscriptionContent;
     error?: string;
+};
+
+export type TranscriptionContent = {
+    content: string, 
+    textFileName: string,
 };

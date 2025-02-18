@@ -6,7 +6,25 @@ export const PUT: APIRoute = async ({ request }) => {
         // Get the form data
         const formData = await request.formData();
         const file = formData.get("audio") as File;
+        const audioFileName = formData.get("audioFileName") as string;
+        const textFileName = formData.get("textFileName") as string;
         const id = formData.get("id") as string;
+
+        const { error: removeAudioError } = await supabase.storage
+            .from('files')
+            .remove([`${id}/audio/${audioFileName}`]);
+
+        if (removeAudioError) {
+            throw removeAudioError;
+        };
+
+        const { error: removeTextError } = await supabase.storage
+            .from('files')
+            .remove([`${id}/transcription/${textFileName}`]);
+
+        if (removeTextError) {
+            throw removeTextError;
+        };
 
         if (!file || !id) {
             return new Response(JSON.stringify({ error: "Missing file or ID" }), { status: 400 });

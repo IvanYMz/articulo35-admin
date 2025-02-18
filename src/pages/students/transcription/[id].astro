@@ -7,56 +7,75 @@ const { id } = Astro.params;
 let data: UrlResponse | null = null;
 
 try {
-    const response = await fetch(`http://localhost:4321/api/students_info/transcription/${id}`);
+    const response = await fetch(
+        `http://localhost:4321/api/students_info/transcription/${id}`,
+    );
 
     if (!response.ok) {
         throw new Error(`Failed to fetch data: ${response.statusText}`);
     }
 
     data = (await response.json()) as UrlResponse;
+    console.log("Aqui", data)
 } catch (error) {
     data = {
         audioUrl: "",
-        transcriptionContent: "",
+        audioFileName: "",
+        transcriptionContent: { content: "", textFileName: "" },
         error: (error as Error).message,
     };
 }
 ---
 
-<Layout title="Transcription" description="Transcription of student's audio file.">
-    {data?.error ? (
-        <p style="color: red;">Error: {data.error}</p>
-    ) : (
-        <div>
-            <h3>Student ID: {id}</h3>
+<Layout
+    title="Transcription"
+    description="Transcription of student's audio file."
+>
+    {
+        data?.error ? (
+            <p style="color: red;">Error: {data.error}</p>
+        ) : (
+            <div>
+                <h3>Student ID: {id}</h3>
 
-            <h4>Audio</h4>
-            {data?.audioUrl ? (
-                <audio controls>
-                    <source src={data.audioUrl} type="audio/mpeg" />
-                    Your browser does not support the audio element.
-                </audio>
-            ) : (
-                <p>No audio file found. Please upload an audio file.</p>
-            )}
+                <h4>Audio {data?.audioFileName}</h4>
+                {data?.audioUrl ? (
+                    <audio controls>
+                        <source src={data.audioUrl} type="audio/mpeg" />
+                        Your browser does not support the audio element.
+                    </audio>
+                ) : (
+                    <p>No audio file found. Please upload an audio file.</p>
+                )}
 
-            <form id="uploadForm" data-id={id}>
-                <input type="file" id="audioFile" accept="audio/*" required />
-                <button type="submit">Upload Audio</button>
-            </form>
+                <form
+                    id="uploadForm"
+                    data-id={id}
+                    data-audioFileName={data.audioFileName}
+                    data-textFileName={data.transcriptionContent?.textFileName}
+                >
+                    <input
+                        type="file"
+                        id="audioFile"
+                        accept="audio/*"
+                        required
+                    />
+                    <button type="submit">Upload Audio</button>
+                </form>
 
-            <h4>Transcription</h4>
-            {data?.transcriptionContent ? (
-                <textarea readonly>
-                    {data.transcriptionContent}
-                </textarea>
-            ) : data?.audioUrl ? (
-                <button>Transcribe Audio</button>
-            ) : (
-                <p>No transcription available. Upload an audio file first.</p>
-            )}
-        </div>
-    )}
+                <h4>Transcription</h4>
+                {(data.transcriptionContent?.content !== "") ? (
+                    <textarea readonly>{data?.transcriptionContent?.content}</textarea>
+                ) : data?.audioUrl ? (
+                    <button>Transcribe Audio</button>
+                ) : (
+                    <p>
+                        No transcription available. Upload an audio file first.
+                    </p>
+                )}
+            </div>
+        )
+    }
 </Layout>
 
 <script>
@@ -65,26 +84,46 @@ try {
     if (form) {
         form.addEventListener("submit", async (event) => {
             event.preventDefault();
-            
+
             const studentId = form.getAttribute("data-id") as string;
+            const audioFileName = form.getAttribute("data-audioFileName") as string;
+            const textFileName = form.getAttribute("data-textFileName") as string;
             const fileInput = document.getElementById("audioFile") as HTMLInputElement;
-        
-            if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+
+            if (
+                !fileInput ||
+                !fileInput.files ||
+                fileInput.files.length === 0
+            ) {
                 alert("Please select an audio file.");
                 return;
-            };
+            }
+
+            if (audioFileName) {
+                const confirmReplace = confirm(
+                    `Un archivo de audio (${audioFileName}) y su transcripción ya existen. ¿Quieres reemplazarlos?`,
+                );
+                if (!confirmReplace) {
+                    return;
+                };
+            }
 
             const file = fileInput.files[0];
 
             const formData = new FormData();
             formData.append("audio", file);
             formData.append("id", studentId);
+            formData.append("audioFileName", audioFileName);
+            formData.append("textFileName", textFileName);
 
             try {
-                const response = await fetch("http://localhost:4321/api/students_info/transcription/upload_statement", {
-                    method: "PUT",
-                    body: formData,
-                });
+                const response = await fetch(
+                    "http://localhost:4321/api/students_info/transcription/upload_statement",
+                    {
+                        method: "PUT",
+                        body: formData,
+                    },
+                );
 
                 if (response.ok) {
                     alert("Audio uploaded successfully!");
@@ -97,5 +136,5 @@ try {
                 alert("Error uploading audio.");
             }
         });
-    };
+    }
 </script>

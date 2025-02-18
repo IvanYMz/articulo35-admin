@@ -1,7 +1,8 @@
 import type { APIRoute } from "astro";
 import { supabase } from "../../../../lib/supabase";
+import type { UrlResponse, TranscriptionContent } from "../../../../types/types";
 
-async function getSignedUrl(id: string, folder: string): Promise<string | null> {
+async function getSignedUrl(id: string, folder: string): Promise<UrlResponse | null> {
     const { data: fileList, error: listError } = await supabase.storage
         .from("files")
         .list(`${id}/${folder}`);
@@ -15,6 +16,7 @@ async function getSignedUrl(id: string, folder: string): Promise<string | null> 
     }
 
     const filePath = `${id}/${folder}/${fileList[0].name}`;
+    const fileName = fileList[0].name;
 
     const { data: signedUrlData, error: signedUrlError } = await supabase.storage
         .from("files")
@@ -24,10 +26,10 @@ async function getSignedUrl(id: string, folder: string): Promise<string | null> 
         throw new Error(`Error creating signed URL for file "${filePath}": ${signedUrlError.message}`);
     }
 
-    return signedUrlData.signedUrl;
+    return {audioUrl: signedUrlData.signedUrl, audioFileName: fileName, transcriptionContent: { content: "", textFileName: '' }} ;
 }
 
-async function getFileContent(id: string, folder: string): Promise<string | null> {
+async function getFileContent(id: string, folder: string): Promise<TranscriptionContent | null> {
     const { data: fileList, error: listError } = await supabase.storage
         .from("files")
         .list(`${id}/${folder}`);
@@ -41,7 +43,8 @@ async function getFileContent(id: string, folder: string): Promise<string | null
     }
 
     const filePath = `${id}/${folder}/${fileList[0].name}`;
-
+    const textFileName = fileList[0].name;
+    
     const { data, error } = await supabase.storage
         .from("files")
         .download(filePath);
@@ -51,7 +54,8 @@ async function getFileContent(id: string, folder: string): Promise<string | null
     }
 
     const content = await data.text();
-    return content;
+    const transcriptionFile = { content: content, textFileName: textFileName };
+    return transcriptionFile;
 }
 
 export const GET: APIRoute = async function ({ params }) {
@@ -68,13 +72,14 @@ export const GET: APIRoute = async function ({ params }) {
     }
 
     try {
-        const audioUrl = await getSignedUrl(id, "audio");
-        const transcriptionContent = await getFileContent(id, "transcription");
-
+        const response = await getSignedUrl(id, "audio") as UrlResponse;
+        const transcriptionFile = await getFileContent(id, "transcription");
+        console.log(transcriptionFile)
         return new Response(
             JSON.stringify({
-                audioUrl: audioUrl ?? null,  // If there's no audio, we return null
-                transcriptionContent: transcriptionContent ?? null,  // If there's no transcription, we return null
+                audioUrl: response.audioUrl ?? null,  // If there's no audio, we return null
+                audioFileName: response.audioFileName,
+                transcriptionContent: transcriptionFile ?? null,  // If there's no transcription, we return null
             }),
             {
                 status: 200,
