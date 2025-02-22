@@ -28,8 +28,8 @@ try {
 ---
 
 <Layout
-    title="Transcription"
-    description="Transcription of student's audio file."
+    title="Transcripción"
+    description="Transcripción de la declaración del estudiante"
 >
     {
         data?.error ? (
@@ -84,32 +84,22 @@ try {
 
 <script>
     import { io, Socket } from "socket.io-client";
-    let socket: Socket | null = null; // Variable para manejar el socket
     const form = document.getElementById("uploadForm") as HTMLFormElement;
+    let socket: Socket | null = null;
 
     if (form) {
         form.addEventListener("submit", async (event) => {
             event.preventDefault();
 
             const studentId = form.getAttribute("data-id") as string;
-            const audioFileName = form.getAttribute(
-                "data-audioFileName",
-            ) as string;
-            const textFileName = form.getAttribute(
-                "data-textFileName",
-            ) as string;
-            const fileInput = document.getElementById(
-                "audioFile",
-            ) as HTMLInputElement;
+            const audioFileName = form.getAttribute("data-audioFileName") as string;
+            const textFileName = form.getAttribute("data-textFileName") as string;
+            const fileInput = document.getElementById("audioFile") as HTMLInputElement;
 
-            if (
-                !fileInput ||
-                !fileInput.files ||
-                fileInput.files.length === 0
-            ) {
+            if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
                 alert("Please select an audio file.");
                 return;
-            }
+            };
 
             if (audioFileName) {
                 const confirmReplace = confirm(
@@ -118,10 +108,9 @@ try {
                 if (!confirmReplace) {
                     return;
                 }
-            }
+            };
 
             const file = fileInput.files[0];
-
             const formData = new FormData();
             formData.append("audio", file);
             formData.append("id", studentId);
@@ -150,7 +139,6 @@ try {
         });
     }
 
-    // Transcribe audio when the button is clicked
     const transcribeForm = document.getElementById("transcribeForm") as HTMLFormElement;
 
     if (transcribeForm) {
@@ -158,19 +146,15 @@ try {
             event.preventDefault();
             const userId = form.getAttribute("data-id") as string;
 
-            // Iniciar la conexión WebSocket cuando se hace clic en "Transcribe Audio"
             socket = io("http://localhost:5000");
             socket.emit("start_transcription", { user_id: userId });
 
-            // Mostrar un mensaje de "Solicitud de transcripción enviada"
             alert("Solicitud de transcripción enviada!");
 
-            // Esperar a la respuesta del backend para saber cuándo la transcripción ha terminado
             socket.on("transcription_completed", (data) => {
                 console.log("Transcription completed:", data);
                 alert("Transcripción completada!");
 
-                // Desconectar el socket cuando la transcripción se haya completado
                 if (socket) {
                     socket.disconnect();
                     console.log("Socket desconectado");
@@ -195,7 +179,6 @@ try {
 
                 const data = await response.json();
                 console.log("Transcription result: ", data.transcription);
-                //alert("Transcripción completada!");
             } catch (error) {
                 console.error("Error:", error);
                 alert("Hubo un problema con la transcripción.");
