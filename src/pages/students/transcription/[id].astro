@@ -16,7 +16,7 @@ try {
     }
 
     data = (await response.json()) as UrlResponse;
-    console.log("Aqui", data)
+    console.log("Aqui", data);
 } catch (error) {
     data = {
         audioUrl: "",
@@ -64,10 +64,14 @@ try {
                 </form>
 
                 <h4>Transcription</h4>
-                {(data.transcriptionContent?.content !== "") ? (
-                    <textarea readonly>{data?.transcriptionContent?.content}</textarea>
+                {data.transcriptionContent?.content !== "" ? (
+                    <textarea readonly>
+                        {data?.transcriptionContent?.content}
+                    </textarea>
                 ) : data?.audioUrl ? (
-                    <button>Transcribe Audio</button>
+                    <form id="transcribeForm" data-id={id}>
+                        <button type="submit">Transcribe Audio</button>
+                    </form>
                 ) : (
                     <p>
                         No transcription available. Upload an audio file first.
@@ -79,6 +83,8 @@ try {
 </Layout>
 
 <script>
+    import { io, Socket } from "socket.io-client";
+    let socket: Socket | null = null; // Variable para manejar el socket
     const form = document.getElementById("uploadForm") as HTMLFormElement;
 
     if (form) {
@@ -86,9 +92,15 @@ try {
             event.preventDefault();
 
             const studentId = form.getAttribute("data-id") as string;
-            const audioFileName = form.getAttribute("data-audioFileName") as string;
-            const textFileName = form.getAttribute("data-textFileName") as string;
-            const fileInput = document.getElementById("audioFile") as HTMLInputElement;
+            const audioFileName = form.getAttribute(
+                "data-audioFileName",
+            ) as string;
+            const textFileName = form.getAttribute(
+                "data-textFileName",
+            ) as string;
+            const fileInput = document.getElementById(
+                "audioFile",
+            ) as HTMLInputElement;
 
             if (
                 !fileInput ||
@@ -105,7 +117,7 @@ try {
                 );
                 if (!confirmReplace) {
                     return;
-                };
+                }
             }
 
             const file = fileInput.files[0];
@@ -134,6 +146,59 @@ try {
             } catch (error) {
                 console.error("Error:", error);
                 alert("Error uploading audio.");
+            }
+        });
+    }
+
+    // Transcribe audio when the button is clicked
+    const transcribeForm = document.getElementById("transcribeForm") as HTMLFormElement;
+
+    if (transcribeForm) {
+        transcribeForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const userId = form.getAttribute("data-id") as string;
+
+            // Iniciar la conexión WebSocket cuando se hace clic en "Transcribe Audio"
+            socket = io("http://localhost:5000");
+            socket.emit("start_transcription", { user_id: userId });
+
+            // Mostrar un mensaje de "Solicitud de transcripción enviada"
+            alert("Solicitud de transcripción enviada!");
+
+            // Esperar a la respuesta del backend para saber cuándo la transcripción ha terminado
+            socket.on("transcription_completed", (data) => {
+                console.log("Transcription completed:", data);
+                alert("Transcripción completada!");
+
+                // Desconectar el socket cuando la transcripción se haya completado
+                if (socket) {
+                    socket.disconnect();
+                    console.log("Socket desconectado");
+                }
+            });
+
+            try {
+                const response = await fetch(
+                    "http://127.0.0.1:5000/transcribe",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ user_id: userId }),
+                    },
+                );
+
+                if (!response.ok) {
+                    throw new Error("Error en la transcripción");
+                }
+
+                const data = await response.json();
+                console.log("Transcription result: ", data.transcription);
+                //alert("Transcripción completada!");
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Hubo un problema con la transcripción.");
             }
         });
     }
