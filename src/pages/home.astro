@@ -1,7 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import StudentsList from "../components/StudentsList.astro";
 import { supabase } from "../lib/supabase";
-import type { Student } from "../types/types";
 
 // Get the access and refresh tokens from cookies
 const accessToken = Astro.cookies.get("sb-access-token");
@@ -32,51 +32,27 @@ try {
     Astro.cookies.delete("sb-refresh-token", { path: "/" });
     return Astro.redirect("/signin");
 }
-
-// Fetch student data from the API
-let students: Student[] = [];
-try {
-    const response = await fetch("http://localhost:4321/api/students_info/requests");
-
-    if (!response.ok) {
-        console.error("Error fetching academic records");
-    } else {
-        // Parse the response as JSON and cast it to the `Student[]` type
-        students = (await response.json()) as Student[];
-    }
-} catch (err) {
-    console.error("Fetch error:", err);
-}
 ---
 
 <Layout title="Home">
     <section>
-        <h2>Peticiones de oportunidad para Artículo 35</h2>
-
-        {students.length > 0 ? (
-            <!-- If there are students, display them in a list -->
-            <ul>
-                {students.map((student) => (
-                    <li>
-                        <strong>{student.name}</strong>
-
-                        <ul>
-                            {student.subjects.map((subject, index) => (
-                                <li>{subject.name}</li>
-                            ))}
-                        </ul>
-                        {(student.subjects[0] && student.subjects[0].status  === "under_review") ? (
-                            <p>Estado: Pendiente</p>
-                        ) : (
-                            <p>Estado: {student.subjects[0].status}</p>
-                        )}
-
-                        <a href={`/students/${student.student_id}`}>Detalles</a>
-                    </li>
-                ))}
-            </ul>
-        ) : (
-            <p>No student records available.</p>
-        )}
+        <h2>PETICIONES DE OPORTUNIDAD PARA ARTÍCULO 35</h2>
+        <StudentsList />
     </section>
 </Layout>
+
+<style>
+    section {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        text-wrap: pretty;
+    }
+    h2 {
+        font-size: 34px;
+        font-family: roboto, serif, sans-serif;
+        font-weight: bold;
+        align-self: center;
+        color: #64748b;
+    }
+</style>

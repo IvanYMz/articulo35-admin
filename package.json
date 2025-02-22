@@ -9,8 +9,10 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/tailwind": "^6.0.0",
     "@supabase/supabase-js": "^2.48.0",
     "astro": "^5.1.9",
-    "socket.io-client": "^4.8.1"
+    "socket.io-client": "^4.8.1",
+    "tailwindcss": "^3.4.17"
   }
 }

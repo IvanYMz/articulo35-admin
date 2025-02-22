@@ -74,7 +74,6 @@ export const GET: APIRoute = async function ({ params }) {
     try {
         const response = await getSignedUrl(id, "audio") as UrlResponse;
         const transcriptionFile = await getFileContent(id, "transcription");
-        console.log(transcriptionFile)
         return new Response(
             JSON.stringify({
                 audioUrl: response.audioUrl ?? null,  // If there's no audio, we return null
