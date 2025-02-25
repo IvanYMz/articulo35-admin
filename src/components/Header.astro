@@ -1,8 +1,35 @@
-<header>Este es el header</header>
+<header>
+    Este es el header
+    <button id="sign-out">Cerrar sesión</button>
+</header>
+
+<script>
+    const signOutButton = document.getElementById("sign-out");
+
+    if (signOutButton) {
+        signOutButton.addEventListener("click", async () => {
+            const confirmSignOut = confirm("¿Cerrar sesión?");
+            if (!confirmSignOut) { 
+                return;
+            }
+            try {
+                const response = await fetch("http://localhost:4321/api/auth/signout");
+                if (response.ok) {
+                    window.location.href = "http://localhost:4321/signin";
+                } else {
+                    alert("Error al cerrar sesión");
+                };
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Error al cerrar sesión");
+            }
+        });
+    }
+</script>
 
 <style>
     header {
-        border-radius: .25rem;
+        border-radius: 0.25rem;
         height: 3rem;
         padding: 0.5rem;
         display: flex;

@@ -1,0 +1,30 @@
+---
+interface Props {
+    title: string;
+};
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+	</head>
+	<body class="h-screen p-4 bg-[#2D3C5A]">
+		<div class="flex flex-col justify-center items-center bg-[#2D3C5A] w-full h-full rounded gap-4">
+			<img src="/src/assets/Escudo_UdG.svg" alt="Escudo UDG" class="w-32 h-42" />
+			<div class="flex flex-col justify-center items-center text-white">
+				<h1 class="text-2xl leading-8 font-semibold" >Artículo 35 CUCEI</h1>
+				<h2 class="text-xl leading-7 font-semibold">¡Ingrese a su cuenta!</h2>
+			</div>
+			<main class="flex flex-col justify-center w-72 h-auto sm:w-96 p-6 bg-white rounded shadow-xl">
+				<slot />
+			</main>
+		</div>
+	</body>
+</html>

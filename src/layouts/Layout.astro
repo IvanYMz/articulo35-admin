@@ -1,6 +1,11 @@
 ---
-// #9CA3AF <--- sidebar color
 import Header from "../components/Header.astro";
+
+interface Props {
+    title: string;
+};
+
+const { title } = Astro.props;
 ---
 
 <!doctype html>
@@ -10,7 +15,7 @@ import Header from "../components/Header.astro";
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Artículo 35 - CUCEI</title>
+		<title>{title}</title>
 	</head>
 	<body class="h-screen p-4 bg-[#2D3C5A]">
 		<div class="bg-[#F0F2F6] w-full h-full rounded p-3">
