@@ -1,10 +1,18 @@
 ---
 import type { Student } from "../types/types";
 
+const statusTranslations: Record<string, string> = {
+    under_review: "En revisión",
+    rejected: "Rechazado",
+    accepted: "Aceptado",
+};
+
 // Fetch student data from the API
 let students: Student[] = [];
 try {
-    const response = await fetch("http://localhost:4321/api/students_info/requests");
+    const response = await fetch(
+        "http://localhost:4321/api/students_info/requests",
+    );
 
     if (!response.ok) {
         console.error("Error fetching academic records");
@@ -17,28 +25,110 @@ try {
 }
 ---
 
-<!-- If there are students, display them in a list -->
-{students.length > 0 ? (
-    <ul>
-        {students.map((student) => (
-            <li>
-                <strong>{student.name}</strong>
+<!-- If there are students, display them in a list -->{
+    students.length > 0 ? (
+        <ul id="students-list">
+            {students.map((student) => (
+                <li class="students-list-item">
+                    <p class="student-name">{student.name}</p>
 
-                <ul>
-                    {student.subjects.map((subject, index) => (
-                        <li>{subject.name}</li>
-                    ))}
-                </ul>
-                {(student.subjects[0] && student.subjects[0].status  === "under_review") ? (
-                    <p>Estado: Pendiente</p>
-                ) : (
-                    <p>Estado: {student.subjects[0].status}</p>
-                )}
+                    <p class="subjects-list">
+                        {student.subjects.map((s) => s.name).join(", ")}
+                    </p>
 
-                <a href={`/students/${student.student_id}`}>Detalles</a>
-            </li>
-        ))}
-    </ul>
-) : (
-    <p>No student records available.</p>
-)}
+                    <p id="status" class={student.subjects[0].status}>
+                        {statusTranslations[student.subjects[0].status] || student.subjects[0].status}
+                    </p>
+                    <a
+                        class="student-details"
+                        href={`/students/${student.student_id}`}
+                    >
+                        Detalles
+                    </a>
+                </li>
+            ))}
+        </ul>
+    ) : (
+        <p>No student records available.</p>
+    )
+}
+
+<style>
+    #students-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .students-list-item {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        background: white;
+        padding: 1rem 1.5rem 1rem 1.5rem;
+        border-radius: 0.25rem;
+    }
+    .subjects-list {
+        font-style: italic;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: 300;
+        gap: 0.75rem;
+    }
+    .student-details {
+        justify-self: end;
+    }
+    #status {
+        width: fit-content;
+        justify-self: center;
+        border-radius: 1rem;
+        padding: 0.25rem 0.5rem;
+        border: 1.5px solid;
+    }
+    .accepted {
+        background: #cee9e6;
+        color: #0d9488;
+        border-color: #0d9488;
+    }
+    .rejected {
+        background: pink;
+        color: red;
+        border-color: red;
+    }
+    .under_review {
+        background: #fbeacc;
+        color: #f59e0b;
+        border-color: #f59e0b;
+    }
+    .student-name {
+        font-weight: bold;
+    }
+
+    @media (max-width: 1000px) {
+        .students-list-item {
+            grid-template-columns: 1fr 1fr;
+            row-gap: 0.5rem;
+            justify-content: center;
+            align-items: center;
+        }
+        .student-details {
+            justify-self: auto;
+        }
+        #status {
+            justify-self: auto;
+        }
+    }
+    @media (max-width: 600px) {
+        .students-list-item {
+            grid-template-columns: 1fr;
+            row-gap: 0.5rem;
+            justify-content: center;
+            align-items: center;
+        }
+        .student-details {
+            justify-self: auto;
+        }
+        #status {
+            justify-self: auto;
+        }
+    }
+</style>

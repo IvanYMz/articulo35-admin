@@ -1,6 +1,9 @@
-<header>
-    Este es el header
-    <button id="sign-out">Cerrar sesión</button>
+<header class="shadow-lg">
+    <img src="/src/assets/Escudo_UdG.svg" alt="Escudo UDG" class="w-6 h-8" />
+    <button id="sign-out">
+        <img src="/src/assets/logout.svg" alt="Cerrar sesión" />
+        Cerrar sesión
+    </button>
 </header>
 
 <script>
@@ -9,16 +12,18 @@
     if (signOutButton) {
         signOutButton.addEventListener("click", async () => {
             const confirmSignOut = confirm("¿Cerrar sesión?");
-            if (!confirmSignOut) { 
+            if (!confirmSignOut) {
                 return;
             }
             try {
-                const response = await fetch("http://localhost:4321/api/auth/signout");
+                const response = await fetch(
+                    "http://localhost:4321/api/auth/signout",
+                );
                 if (response.ok) {
                     window.location.href = "http://localhost:4321/signin";
                 } else {
                     alert("Error al cerrar sesión");
-                };
+                }
             } catch (error) {
                 console.error("Error:", error);
                 alert("Error al cerrar sesión");
@@ -31,9 +36,22 @@
     header {
         border-radius: 0.25rem;
         height: 3rem;
-        padding: 0.5rem;
+        padding: 1rem;
+        top: 0;
+        position: sticky;
         display: flex;
         align-items: center;
+        justify-content: space-between;
         background: white;
+    }
+    #sign-out {
+        display: flex;
+        align-items: center;
+        color: #2d3c5a;
+        padding: 0.25rem;
+        gap: 0.5rem;
+    }
+    #sign-out:hover {
+        opacity: 0.5;
     }
 </style>

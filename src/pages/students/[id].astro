@@ -124,7 +124,7 @@ try {
                 console.error("Error updating student requests");
             } else {
                 // Reload the page to reflect the changes
-                location.reload();
+                window.location.href = "/";
             }
         } catch (err) {
             console.error("Fetch error:", err);
