@@ -44,29 +44,45 @@ try {
 
 <Layout title="Detalles del estudiante">
     <h1>{student.personalData.full_name}</h1>
+    <p>ID: {student.personalData.student_id}</p>
+    <p>Email: {student.personalData.email}</p>
 
-    {
-        student.requests.length > 0 ? (
-            <ul>
-                {student.requests.map((request) => (
-                    <li>{request.available_subjects.name}</li>
-                ))}
-            </ul>
-        ) : (
-            <p>No requests</p>
-        )
-    }
+    <h2>Información Académica</h2>
+    <p>Código: {student.academicRecords.student_code}</p>
+    <p>Carrera: {student.academicRecords.career}</p>
+    <p>Promedio: {student.academicRecords.average_score}</p>
+    <p>Ciclo de Ingreso: {student.academicRecords.enrollment_cycle}</p>
+    <p>Ciclo de Egreso: {student.academicRecords.graduation_cycle}</p>
+    <p>Créditos Aprobados: {student.academicRecords.approved_credits}</p>
+    <p>Créditos Pendientes: {student.academicRecords.pending_credits}</p>
+    <p>División: {student.academicRecords.division}</p>
+
+    <div>
+        <h2>Solicitudes</h2>
+        {
+            student.requests.length > 0 ? (
+                <ul>
+                    {student.requests.map((request) => (
+                        <li>{request.available_subjects.name}</li>
+                    ))}
+                </ul>
+            ) : (
+                <p>No requests</p>
+            )
+        }
+    </div>
     <a href={`/students/transcription/${id}`}>Ver declaración</a>
 
     {
         student.requests.length > 0 && (
-            <div>
-                <button id="accept" data-id={id} data-status="accepted">
+            <div id="buttons-container">
+                <button id="accept" class="aprove-deny" data-id={id} data-status="accepted">
                     Aprobar
                 </button>
-                <button id="deny" data-id={id} data-status="rejected">
+                <button id="deny" class="aprove-deny" data-id={id} data-status="rejected">
                     Denegar
                 </button>
+                <button id="reset" data-id={id} data-status="under_review">resetear</button>
             </div>
         )
     }
@@ -76,8 +92,9 @@ try {
     // Get the accept and deny buttons
     const acceptButton = document.getElementById("accept");
     const denyButton = document.getElementById("deny");
+    const resetButton = document.getElementById("reset");
 
-    if (!acceptButton || !denyButton) {
+    if (!acceptButton || !denyButton || !resetButton) {
         throw new Error("Buttons not found");
     }
 
@@ -96,6 +113,17 @@ try {
     denyButton.addEventListener("click", () => {
         const studentId = denyButton.dataset.id;
         const status = denyButton.dataset.status;
+
+        if (!studentId || !status) {
+            throw new Error("ID or Status not found");
+        }
+
+        handleStatusChange(studentId, status);
+    });
+
+    resetButton.addEventListener("click", () => {
+        const studentId = resetButton.dataset.id;
+        const status = resetButton.dataset.status;
 
         if (!studentId || !status) {
             throw new Error("ID or Status not found");
@@ -131,3 +159,28 @@ try {
         }
     }
 </script>
+
+<style>
+    #buttons-container {
+        display: flex;
+        gap: 0.75rem;
+    }
+    .aprove-deny {
+        border-radius: 1rem;
+        padding: 0.25rem 0.5rem;
+        border: 1.5px solid;
+    }
+    #accept {
+        background: #cee9e6;
+        color: #0d9488;
+        border-color: #0d9488;
+    }
+    #deny {
+        background: pink;
+        color: red;
+        border-color: red;
+    }
+    button:hover {
+        opacity: 0.5;
+    }
+</style>
