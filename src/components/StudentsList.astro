@@ -43,7 +43,8 @@ try {
                         class="student-details"
                         href={`/students/${student.student_id}`}
                     >
-                        Detalles
+                        <img src="src/assets/file-description.svg" alt=""/>
+                        Ver detalles
                     </a>
                 </li>
             ))}
@@ -75,7 +76,15 @@ try {
         gap: 0.75rem;
     }
     .student-details {
+        display: flex;
+        align-items: center;
         justify-self: end;
+        padding-left: 2rem;
+        border-left: 1px solid lightgray;
+        gap: 0.5rem;
+    }
+    .student-details:hover {
+        opacity: 0.5;
     }
     #status {
         width: fit-content;
@@ -112,6 +121,8 @@ try {
         }
         .student-details {
             justify-self: auto;
+            border: none;
+            padding: 0;
         }
         #status {
             justify-self: auto;
@@ -126,6 +137,8 @@ try {
         }
         .student-details {
             justify-self: auto;
+            border: none;
+            padding: 0;
         }
         #status {
             justify-self: auto;
