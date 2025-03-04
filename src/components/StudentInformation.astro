@@ -1,0 +1,174 @@
+---
+import type { StudentDetails } from "../types/types";
+const { id } = Astro.params;
+
+// Initialize a default student object with empty values
+let student: StudentDetails = {
+    personalData: {
+        student_id: 0,
+        full_name: "",
+        email: "",
+    },
+    academicRecords: {
+        student_code: "",
+        career: "",
+        average_score: 0,
+        enrollment_cycle: "",
+        graduation_cycle: "",
+        approved_credits: 0,
+        pending_credits: 0,
+        division: "",
+    },
+    requests: [],
+};
+
+// Fetch student details from the API
+try {
+    const response = await fetch(
+        `http://localhost:4321/api/students_info/details/${id}`,
+    );
+
+    if (!response.ok) {
+        console.error("Error fetching student information");
+    } else {
+        // Parse the response as JSON and cast it to the `StudentDetails` type
+        student = (await response.json()) as StudentDetails;
+    }
+} catch (err) {
+    console.error("Fetch error:", err);
+}
+---
+
+<section>
+    <header id="personal-info">
+        <h1 id="student-name">{student.personalData.full_name}</h1>
+        <p id="student-mail">{student.personalData.email}</p>
+    </header>
+
+    <main>
+        <div id="academic-info">
+            <h2>Información Académica</h2>
+            <ul id="academic-list-info">
+                <li>
+                    <img src="/src/assets/CodeIcon.svg" alt="Icono de nombre" />
+                    <p>Código: {student.academicRecords.student_code}</p>
+                </li>
+                <li>
+                    <img src="/src/assets/DegreeIcon.svg" alt="Icono de codigo"/>
+                    <p>Carrera: {student.academicRecords.career}</p>
+                </li>
+                <li>
+                    <img src="/src/assets/GradesIcon.svg" alt="Icono de codigo"/>
+                    <p>Promedio: {student.academicRecords.average_score}</p>
+                </li>
+                <li>
+                    <img src="/src/assets/CalendarStartIcon.svg" alt="Icono de ciclo de ingreso"/>
+                    <p>Ciclo de Ingreso: {student.academicRecords.enrollment_cycle}</p>
+                </li>
+                <li>
+                    <img src="/src/assets/CalendarDoneIcon.svg" alt="Icono de ciclo de egreso"/>
+                    <p>Ciclo de Egreso: {student.academicRecords.graduation_cycle}</p>
+                </li>
+                <li>
+                    <img
+                        src="/src/assets/CompletedIcon.svg"
+                        alt="Icono de creditos aprobados"
+                    />
+                    <p>Créditos Aprobados: {student.academicRecords.approved_credits}</p>
+                </li>
+                <li>
+                    <img src="/src/assets/RemainingIcon.svg" alt="Icono de creditos faltantes"/>
+                    <p>Créditos Pendientes: {student.academicRecords.pending_credits}</p>
+                </li>
+                <li>
+                    <img src="/src/assets/DepartmentIcon.svg" alt="Icono de departamento"/>
+                    <p>División: {student.academicRecords.division}</p>
+                </li>
+            </ul>
+        </div>
+
+        <div id="requests">
+            <h2>Solicitudes</h2>
+            {
+                student.requests.length > 0 ? (
+                    <ul>
+                        {student.requests.map((request) => (
+                            <li>{request.available_subjects.name}</li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p>No requests</p>
+                )
+            }
+        </div>
+        <a href={`/students/transcription/${id}`}>Ver declaración</a>
+    </main>
+</section>
+
+<style>
+    main {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    #academic-list-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    #academic-list-info li {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: fit-content;
+        gap: 0.5rem;
+    }
+    #academic-list-info img {
+        width: 24px;
+        height: 24px;
+    }
+    #personal-info {
+        display: flex;
+        align-items: baseline;
+        gap: 1rem;
+        padding: 0.5rem;
+    }
+    #academic-info {
+        background: white;
+        padding: 1rem;
+        border-radius: 0.5rem;
+    }
+    #requests {
+        background: white;
+        padding: 1rem;
+        border-radius: 0.5rem;
+    }
+    h2 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        padding-bottom: 0.5rem;
+        margin-bottom: 0.5rem;
+        border-bottom: 2px solid #2d3c5a;
+    }
+    #student-name {
+        font-size: 2rem;
+        font-family: roboto, serif, sans-serif;
+        font-weight: bold;
+        color: #64748b;
+    }
+
+    #student-mail {
+        font-size: 1rem;
+        font-family: roboto, serif, sans-serif;
+        color: #64748b;
+    }
+
+    @media (max-width: 500px) {
+        #personal-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5px;
+            padding: 0.5rem;
+        }
+    }
+</style>
