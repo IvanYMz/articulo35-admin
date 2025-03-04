@@ -1,0 +1,109 @@
+---
+import type { StudentFiles } from "../types/types";
+
+const { id } = Astro.params;
+let data: StudentFiles | null = null;
+let dataError: Error | null = null;
+
+try {
+    const response = await fetch(
+        `http://localhost:4321/api/students_info/details/student_files/${id}`,
+    );
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch data: ${response.statusText}`);
+    }
+
+    data = (await response.json()) as StudentFiles;
+} catch (error) {
+    dataError = error as Error;
+}
+---
+
+{dataError && <p>{dataError.message}</p>}
+<div>
+    <h2>Archivos</h2>
+    {
+        data && data.length > 0 ? (
+            <ul>
+                {data.map((file) => (
+                    <li>
+                        <button
+                            id="openFileButton"
+                            class="hover:shadow-lg hover:scale-105 cursor-pointer"
+                            data-url={file.url}
+                        >
+                            <img
+                                src="/src/assets/FileTypePdf.svg"
+                                alt="Icono de archivo"
+                            />
+                            <span>{file.name}</span>
+                        </button>
+                    </li>
+                ))}
+            </ul>
+        ) : (
+            !dataError && <p>No hay documentos disponibles.</p>
+        )
+    }
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const fileButtons = document.querySelectorAll("button[data-url]");
+
+        fileButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                const fileUrl = button.getAttribute("data-url");
+                if (fileUrl) {
+                    window.open(fileUrl, "_blank", "noopener,noreferrer");
+                }
+            });
+        });
+    });
+</script>
+
+<style>
+    ul {
+        display: flex;
+        padding-top: 0.5rem;
+        gap: 1rem;
+    }
+    h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        padding-bottom: 0.5rem;
+        margin-bottom: 0.5rem;
+        color: #2d3c5a;
+        border-bottom: 2px solid #2d3c5a;
+    }
+    div {
+        background: white;
+        padding: 1rem;
+        border-radius: 0.5rem;
+    }
+    button {
+        width: 7rem;
+        height: 9rem;
+        border-radius: 0.25rem;
+        padding: 0.5rem;
+        border: solid 0.5px #2d3c5a;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    button span {
+        width: 100%; 
+        color: #2d3c5a;
+        text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+    }
+    button img {
+        width: 75px;
+        height: 75px;
+    }
+</style>

@@ -23,7 +23,7 @@ export const GET: APIRoute = async ({ params }) => {
         .single(),
       supabase
         .from("requests")
-        .select(`subject_id, status, description, available_subjects (name)`)
+        .select(`subject_id, status, description, available_subjects (name, nrc)`)
         .eq("student_id", id),
     ]);
 

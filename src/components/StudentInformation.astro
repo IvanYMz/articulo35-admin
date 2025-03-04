@@ -88,12 +88,12 @@ try {
         </div>
 
         <div id="requests">
-            <h2>Solicitudes</h2>
+            <h2>Materias Solicitadas</h2>
             {
                 student.requests.length > 0 ? (
-                    <ul>
+                    <ul id="subjects">
                         {student.requests.map((request) => (
-                            <li>{request.available_subjects.name}</li>
+                            <li><span class="font-semibold">{request.available_subjects.nrc}</span> - {request.available_subjects.name}</li>
                         ))}
                     </ul>
                 ) : (
@@ -101,7 +101,6 @@ try {
                 )
             }
         </div>
-        <a href={`/students/transcription/${id}`}>Ver declaración</a>
     </main>
 </section>
 
@@ -145,10 +144,14 @@ try {
     }
     h2 {
         font-size: 1.25rem;
-        font-weight: bold;
+        font-weight: 600;
         padding-bottom: 0.5rem;
         margin-bottom: 0.5rem;
+        color: #2d3c5a;
         border-bottom: 2px solid #2d3c5a;
+    }
+    li {
+        color: #2d3c5a;
     }
     #student-name {
         font-size: 2rem;

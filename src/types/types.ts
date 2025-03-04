@@ -45,6 +45,7 @@ export type Request = {
     description: string;
     available_subjects: {
         name: string;
+        nrc: string
     };
 };
 
@@ -59,3 +60,11 @@ export type TranscriptionContent = {
     content: string, 
     textFileName: string,
 };
+
+export type FileData = {
+    name: string;
+    url: string;
+    folder: string;
+};
+
+export type StudentFiles = FileData[];

@@ -2,6 +2,8 @@
 import Layout from "../../layouts/Layout.astro";
 import StudentInformation from "../../components/StudentInformation.astro";
 import StatusHandler from "../../components/StatusHandler.astro";
+import StudentFiles from "../../components/StudentFiles.astro";
+import StudentStatement from "../../components/StudentStatement.astro";
 
 // Extract the `id` parameter from the Astro route (selected student)
 const { id } = Astro.params;
@@ -10,6 +12,16 @@ const { id } = Astro.params;
 <Layout title="Detalles del estudiante">
     <div>
         <StudentInformation id={id}/>
+        <StudentFiles id={id} />
+        <StudentStatement id={id} />
         <StatusHandler id={id} />
     </div>
 </Layout>
+
+<style>
+    div {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+</style>

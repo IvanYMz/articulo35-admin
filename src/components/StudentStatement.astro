@@ -1,6 +1,5 @@
 ---
-import Layout from "../../../layouts/Layout.astro";
-import type { UrlResponse } from "../../../types/types";
+import type { UrlResponse } from "../types/types";
 
 const { id } = Astro.params;
 
@@ -25,8 +24,6 @@ try {
     };
 }
 ---
-
-<Layout title="Declaración del estudiante">
     {
         data?.error ? (
             <p style="color: red;">Error: {data.error}</p>
@@ -76,7 +73,6 @@ try {
             </div>
         )
     }
-</Layout>
 
 <script>
     import { io, Socket } from "socket.io-client";
