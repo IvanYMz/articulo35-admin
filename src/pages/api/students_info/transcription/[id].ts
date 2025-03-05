@@ -53,7 +53,10 @@ async function getFileContent(id: string, folder: string): Promise<Transcription
         throw new Error(`Error downloading file "${filePath}": ${error.message}`);
     }
 
-    const content = await data.text();
+    const buffer = await data.arrayBuffer();
+    const decoder = new TextDecoder("ISO-8859-1"); 
+    const content = decoder.decode(buffer);
+
     const transcriptionFile = { content: content, textFileName: textFileName };
     return transcriptionFile;
 }

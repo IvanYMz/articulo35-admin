@@ -28,48 +28,51 @@ try {
         data?.error ? (
             <p style="color: red;">Error: {data.error}</p>
         ) : (
-            <div>
-                <h3>Student ID: {id}</h3>
+            <div id="student-statement">
+                <div id="declaration">
+                    <h2>Declaración</h2>
+                    {data?.audioUrl && data?.audioFileName !== '.emptyFolderPlaceholder' ? (
+                    <h4>Audio: {data?.audioFileName}</h4>
+                        <audio controls>
+                            <source src={data.audioUrl} type="audio/mpeg" />
+                            Your browser does not support the audio element.
+                        </audio>
+                    ) : (
+                        <p>Sin archivo de audio. Por favor, suba uno.</p>
 
-                <h4>Audio {data?.audioFileName}</h4>
-                {data?.audioUrl ? (
-                    <audio controls>
-                        <source src={data.audioUrl} type="audio/mpeg" />
-                        Your browser does not support the audio element.
-                    </audio>
-                ) : (
-                    <p>No audio file found. Please upload an audio file.</p>
-                )}
+                        <form
+                            id="uploadForm"
+                            data-id={id}
+                            data-audioFileName={data.audioFileName}
+                            data-textFileName={data.transcriptionContent?.textFileName}
+                        >
+                            <input
+                                type="file"
+                                id="audioFile"
+                                accept="audio/*"
+                                required
+                                />
+                            <button id="submit_button" type="submit">Subir audio</button>
+                        </form>
+                    )}
+                </div>
 
-                <form
-                    id="uploadForm"
-                    data-id={id}
-                    data-audioFileName={data.audioFileName}
-                    data-textFileName={data.transcriptionContent?.textFileName}
-                >
-                    <input
-                        type="file"
-                        id="audioFile"
-                        accept="audio/*"
-                        required
-                    />
-                    <button type="submit">Upload Audio</button>
-                </form>
-
-                <h4>Transcription</h4>
-                {data.transcriptionContent?.content !== "" ? (
-                    <textarea readonly>
-                        {data?.transcriptionContent?.content}
-                    </textarea>
-                ) : data?.audioUrl ? (
-                    <form id="transcribeForm" data-id={id}>
-                        <button type="submit">Transcribe Audio</button>
-                    </form>
-                ) : (
-                    <p>
-                        No transcription available. Upload an audio file first.
-                    </p>
-                )}
+                <div id="transcription">
+                    <h4>Transcription</h4>
+                    {data.transcriptionContent?.content ? (
+                        <p id="transcriptionContent">
+                            {data?.transcriptionContent?.content}
+                        </p>
+                    ) : data?.audioUrl && data?.audioFileName !== '.emptyFolderPlaceholder' ? (
+                        <form id="transcribeForm" data-id={id}>
+                            <button type="submit">Transcribir Audio</button>
+                        </form>
+                    ) : (
+                        <p>
+                            No es posible transcribir. Suba un archivo de audio primero.
+                        </p>
+                    )}
+                </div>
             </div>
         )
     }
@@ -178,3 +181,58 @@ try {
         });
     }
 </script>
+
+<style>
+    #student-statement {
+        display: flex;
+        flex-direction: column;
+        background: white;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        gap: 1rem;
+    }
+    #transcription {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    #declaration {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    button {
+        background-color: #2d3c5a;
+        width: fit-content;
+        color: white;
+        border: none;
+        border-radius: 0.25rem;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+    }
+    button:hover {
+        opacity: 0.8;
+    }
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    h4 {
+        color: #2d3c5a;
+    }
+    h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        padding-bottom: 0.5rem;
+        margin-bottom: 0.5rem;
+        color: #2d3c5a;
+        border-bottom: 2px solid #2d3c5a;
+    }
+    #transcriptionContent {
+        align-self: center;
+        border: 0.5px solid lightgrey;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+    }
+</style>
