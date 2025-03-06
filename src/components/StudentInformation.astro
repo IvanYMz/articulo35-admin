@@ -25,7 +25,7 @@ let student: StudentDetails = {
 // Fetch student details from the API
 try {
     const response = await fetch(
-        `http://localhost:4321/api/students_info/details/${id}`,
+        `http://localhost:4321/api/students_info/details/${id}`, // API endpoint to get student details
     );
 
     if (!response.ok) {

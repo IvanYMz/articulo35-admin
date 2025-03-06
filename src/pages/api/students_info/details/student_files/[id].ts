@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 import { supabase } from "../../../../../lib/supabase";
 import type { StudentFiles } from "../../../../../types/types";
 
+// Endpoint to get the signed URLs for the student's files
 export const GET: APIRoute = async ({params}) => {
     const { id } = params;
     try {
@@ -12,6 +13,7 @@ export const GET: APIRoute = async ({params}) => {
             });
         };
 
+        // Get the evidence letter file from the student's folder
         const { data: dataEvidence, error: errorEvidence } = await supabase
             .storage
             .from('files')
@@ -20,6 +22,7 @@ export const GET: APIRoute = async ({params}) => {
                 offset: 0,
                 sortBy: { column: 'name', order: 'asc' },
             })
+        // Handle errors   
         if (errorEvidence) throw errorEvidence;
 
         if (!dataEvidence) {
@@ -29,8 +32,9 @@ export const GET: APIRoute = async ({params}) => {
             });
         };
 
-        const evidenceFileName = dataEvidence[0].name;
+        const evidenceFileName = dataEvidence[0].name; // Get the name of the evidence file
 
+        // Get the guardian letter file from the student's folder
         const { data: dataGuardian, error: errorFolder } = await supabase
             .storage
             .from('files')
@@ -39,6 +43,7 @@ export const GET: APIRoute = async ({params}) => {
                 offset: 0,
                 sortBy: { column: 'name', order: 'asc' },
             })
+        // Handle errors    
         if (errorFolder) throw errorFolder;
 
         if (!dataGuardian) {
@@ -48,8 +53,9 @@ export const GET: APIRoute = async ({params}) => {
             });
         };
 
-        const letterFileName = dataGuardian[0].name;
+        const letterFileName = dataGuardian[0].name; // Get the name of the guardian letter file
 
+        // Generate signed URLs for the files
         const { data: dataSignedUrls, error: errorSignedlUrls } = await supabase
             .storage
             .from('files')
@@ -62,15 +68,17 @@ export const GET: APIRoute = async ({params}) => {
             });
         };
 
-        const fileNames = [evidenceFileName, letterFileName];
-        const folders = [ 'evidence', 'guardianLetter']
+        const fileNames = [evidenceFileName, letterFileName]; // Array with the file names
+        const folders = [ 'evidence', 'guardianLetter'] // Array with the folders where the files are stored
 
+        // Create an array with the signed URLs
         const response: StudentFiles = dataSignedUrls.map((file, index) => ({
             name: fileNames[index],
             url: file.signedUrl,
             folder: folders[index],
         }));
 
+        // Handle errors
         if (errorSignedlUrls) {
             return new Response(JSON.stringify({ error: errorSignedlUrls }), {
                 status: 500,
@@ -78,6 +86,7 @@ export const GET: APIRoute = async ({params}) => {
             });
         };
 
+        // Return the signed URLs
         return new Response(JSON.stringify(response), {
             status: 200,
             headers: { "Content-Type": "application/json" },

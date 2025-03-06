@@ -1,6 +1,7 @@
 import { supabase } from "../../../../lib/supabase";
 import type { APIRoute } from "astro";
 
+// Endpoint to upload audio file
 export const PUT: APIRoute = async ({ request }) => {
     try {
         // Get the form data
@@ -10,6 +11,7 @@ export const PUT: APIRoute = async ({ request }) => {
         const textFileName = formData.get("textFileName") as string;
         const id = formData.get("id") as string;
 
+        // Remove existing audio file
         const { error: removeAudioError } = await supabase.storage
             .from('files')
             .remove([`${id}/audio/${audioFileName}`]);
@@ -18,6 +20,7 @@ export const PUT: APIRoute = async ({ request }) => {
             throw removeAudioError;
         };
 
+        // Remove existing text file
         const { error: removeTextError } = await supabase.storage
             .from('files')
             .remove([`${id}/transcription/${textFileName}`]);
@@ -30,6 +33,7 @@ export const PUT: APIRoute = async ({ request }) => {
             return new Response(JSON.stringify({ error: "Missing file or ID" }), { status: 400 });
         }
 
+        // Set the file path
         const filePath = `${id}/audio/${file.name}`;
 
         // Upload file to Supabase storage

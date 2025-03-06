@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { supabase } from "../../../../lib/supabase";
 
+// Endpoint to get the student's personal data, academic records, and requests
 export const GET: APIRoute = async ({ params }) => {
   const { id } = params;
 

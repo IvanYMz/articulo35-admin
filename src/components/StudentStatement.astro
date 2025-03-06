@@ -77,6 +77,61 @@ try {
         )
     }
 
+<style>
+    #student-statement {
+        display: flex;
+        flex-direction: column;
+        background: white;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        gap: 1rem;
+    }
+    #transcription {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    #declaration {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    button {
+        background-color: #2d3c5a;
+        width: fit-content;
+        color: white;
+        border: none;
+        border-radius: 0.25rem;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+    }
+    button:hover {
+        opacity: 0.8;
+    }
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    h4 {
+        color: #2d3c5a;
+    }
+    h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        padding-bottom: 0.5rem;
+        margin-bottom: 0.5rem;
+        color: #2d3c5a;
+        border-bottom: 2px solid #2d3c5a;
+    }
+    #transcriptionContent {
+        align-self: center;
+        border: 0.5px solid lightgrey;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+    }
+</style>
+
 <script>
     import { io, Socket } from "socket.io-client";
     const form = document.getElementById("uploadForm") as HTMLFormElement;
@@ -148,7 +203,7 @@ try {
 
             socket.on("transcription_completed", (data) => {
                 console.log("Transcription completed:", data);
-                alert("Transcripción completada!");
+                alert("Transcripción completada!\nPor favor, recargue la página para ver los resultados.");
 
                 if (socket) {
                     socket.disconnect();
@@ -181,58 +236,3 @@ try {
         });
     }
 </script>
-
-<style>
-    #student-statement {
-        display: flex;
-        flex-direction: column;
-        background: white;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        gap: 1rem;
-    }
-    #transcription {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-    #declaration {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-    button {
-        background-color: #2d3c5a;
-        width: fit-content;
-        color: white;
-        border: none;
-        border-radius: 0.25rem;
-        padding: 0.5rem 1rem;
-        cursor: pointer;
-    }
-    button:hover {
-        opacity: 0.8;
-    }
-    form {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-    h4 {
-        color: #2d3c5a;
-    }
-    h2 {
-        font-size: 1.25rem;
-        font-weight: 600;
-        padding-bottom: 0.5rem;
-        margin-bottom: 0.5rem;
-        color: #2d3c5a;
-        border-bottom: 2px solid #2d3c5a;
-    }
-    #transcriptionContent {
-        align-self: center;
-        border: 0.5px solid lightgrey;
-        padding: 0.5rem;
-        border-radius: 0.5rem;
-    }
-</style>

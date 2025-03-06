@@ -2,7 +2,9 @@ import type { APIRoute } from "astro";
 import { supabase } from "../../../../lib/supabase";
 import type { UrlResponse, TranscriptionContent } from "../../../../types/types";
 
+// Function to get the signed URL for the audio file
 async function getSignedUrl(id: string, folder: string): Promise<UrlResponse | null> {
+    // Get the list of files in the folder
     const { data: fileList, error: listError } = await supabase.storage
         .from("files")
         .list(`${id}/${folder}`);
@@ -15,9 +17,11 @@ async function getSignedUrl(id: string, folder: string): Promise<UrlResponse | n
         return null;  // If there are no files, we return null
     }
 
+    // Get the file path and name
     const filePath = `${id}/${folder}/${fileList[0].name}`;
     const fileName = fileList[0].name;
 
+    // Create a signed URL for the file
     const { data: signedUrlData, error: signedUrlError } = await supabase.storage
         .from("files")
         .createSignedUrl(filePath, 900);
@@ -29,7 +33,9 @@ async function getSignedUrl(id: string, folder: string): Promise<UrlResponse | n
     return {audioUrl: signedUrlData.signedUrl, audioFileName: fileName, transcriptionContent: { content: "", textFileName: '' }} ;
 }
 
+// Function to get the content of the transcription file
 async function getFileContent(id: string, folder: string): Promise<TranscriptionContent | null> {
+    // Get the list of files in the folder
     const { data: fileList, error: listError } = await supabase.storage
         .from("files")
         .list(`${id}/${folder}`);
@@ -42,9 +48,11 @@ async function getFileContent(id: string, folder: string): Promise<Transcription
         return null;  // If there are no files, we return null
     }
 
+    // Get the file path and name
     const filePath = `${id}/${folder}/${fileList[0].name}`;
     const textFileName = fileList[0].name;
-    
+
+    // Download the file content
     const { data, error } = await supabase.storage
         .from("files")
         .download(filePath);
@@ -53,6 +61,7 @@ async function getFileContent(id: string, folder: string): Promise<Transcription
         throw new Error(`Error downloading file "${filePath}": ${error.message}`);
     }
 
+    // Convert the file content to a string
     const buffer = await data.arrayBuffer();
     const decoder = new TextDecoder("ISO-8859-1"); 
     const content = decoder.decode(buffer);

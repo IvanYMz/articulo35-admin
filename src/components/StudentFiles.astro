@@ -3,40 +3,48 @@ import type { StudentFiles } from "../types/types";
 
 const { id } = Astro.params;
 let data: StudentFiles | null = null;
-let dataError: Error | null = null;
+let dataError: string | null = null;
 
+// Fetch student files
 try {
     const response = await fetch(
-        `http://localhost:4321/api/students_info/details/student_files/${id}`,
+        `http://localhost:4321/api/students_info/details/student_files/${id}`, // API endpoint to get student files
     );
 
     if (!response.ok) {
-        throw new Error(`Failed to fetch data: ${response.statusText}`);
+        throw new Error(`Error al obtener los archivos: ${response.status} - ${response.statusText}`);
     }
 
-    data = (await response.json()) as StudentFiles;
+    try {
+        data = (await response.json()) as StudentFiles; // Parse the response as JSON and cast it to 'StudentFiles' type
+    } catch (jsonError) {
+        throw new Error("Error al procesar la respuesta del servidor. Verifica el formato JSON.");
+    }
 } catch (error) {
-    dataError = error as Error;
+    dataError = (error as Error).message;
+    data = null;
 }
 ---
 
-{dataError && <p>{dataError.message}</p>}
+<!-- Handle error -->
+{dataError && (
+    <div class="error-box">
+        <p>{dataError}</p>
+    </div>
+)}
+
 <div>
     <h2>Archivos</h2>
     {
         data && data.length > 0 ? (
             <ul>
-                {data.map((file) => (
+                {data.map((file) => ( // Display the list of files
                     <li>
                         <button
-                            id="openFileButton"
-                            class="hover:shadow-lg hover:scale-105 cursor-pointer"
+                            class="openFileButton hover:shadow-lg hover:scale-105 cursor-pointer"
                             data-url={file.url}
                         >
-                            <img
-                                src="/src/assets/FileTypePdf.svg"
-                                alt="Icono de archivo"
-                            />
+                            <img src="/src/assets/FileTypePdf.svg" alt="Icono de archivo" />
                             <span>{file.name}</span>
                         </button>
                     </li>
@@ -47,21 +55,6 @@ try {
         )
     }
 </div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const fileButtons = document.querySelectorAll("button[data-url]");
-
-        fileButtons.forEach((button) => {
-            button.addEventListener("click", () => {
-                const fileUrl = button.getAttribute("data-url");
-                if (fileUrl) {
-                    window.open(fileUrl, "_blank", "noopener,noreferrer");
-                }
-            });
-        });
-    });
-</script>
 
 <style>
     ul {
@@ -106,4 +99,28 @@ try {
         width: 75px;
         height: 75px;
     }
+
+    .error-box {
+        background: #ffe6e6;
+        color: #d8000c;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+        border: 1px solid #d8000c;
+    }
 </style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".openFileButton").forEach((button) => {
+            button.addEventListener("click", () => {
+                const fileUrl = button.getAttribute("data-url");
+                if (fileUrl) {
+                    window.open(fileUrl, "_blank", "noopener,noreferrer");
+                }
+            });
+        });
+    });
+</script>
+
+

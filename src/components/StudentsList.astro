@@ -7,11 +7,11 @@ const statusTranslations: Record<string, string> = {
     accepted: "Aceptado",
 };
 
-// Fetch student data from the API
+// Fetch student requests from the API
 let students: Student[] = [];
 try {
     const response = await fetch(
-        "http://localhost:4321/api/students_info/requests",
+        "http://localhost:4321/api/students_info/requests", // API endpoint to get student requests
     );
 
     if (!response.ok) {
@@ -28,7 +28,7 @@ try {
 <!-- If there are students, display them in a list -->{
     students.length > 0 ? (
         <ul id="students-list">
-            {students.map((student) => (
+            {students.map((student) => ( // Display each studenet in a list
                 <li class="students-list-item">
                     <p class="student-name">{student.name}</p>
 
@@ -53,7 +53,6 @@ try {
         <p>No student records available.</p>
     )
 }
-
 <style>
     #students-list {
         display: flex;

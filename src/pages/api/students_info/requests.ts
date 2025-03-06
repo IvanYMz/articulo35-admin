@@ -28,9 +28,9 @@ async function fetchAvailableSubjects(subjectIds: number[]): Promise<AvailableSu
 }
 
 function mapStudents(records: AcademicRecord[], subjects: AvailableSubject[]): Student[] {
-  const subjectMap = new Map(subjects.map(subject => [subject.id, subject.name]));
+  const subjectMap = new Map(subjects.map(subject => [subject.id, subject.name])); // Create a map of subject IDs to subject names
 
-  return records.map(record => ({
+  return records.map(record => ({ // Map each record to a student object
       id: record.id,
       student_id: record.student_id,
       name: record.full_name,

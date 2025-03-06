@@ -9,13 +9,43 @@ const { id } = Astro.params;
     <button id="deny" class="aprove-deny" data-id={id} data-status="rejected">
         Denegar
     </button>
-    <button id="reset" data-id={id} data-status="under_review" title="En revisión">
+    <button
+        id="reset"
+        data-id={id}
+        data-status="under_review"
+        title="En revisión"
+    >
         <img src="/src/assets/RefreshIcon.svg" alt="Refresh" />
     </button>
 </div>
 
+<style>
+    #buttons-container {
+        display: flex;
+        gap: 0.75rem;
+    }
+    .aprove-deny {
+        border-radius: 1rem;
+        padding: 0.25rem 0.5rem;
+        border: 1.5px solid;
+    }
+    #accept {
+        background: #cee9e6;
+        color: #0d9488;
+        border-color: #0d9488;
+    }
+    #deny {
+        background: pink;
+        color: red;
+        border-color: red;
+    }
+    button:hover {
+        opacity: 0.5;
+    }
+</style>
+
 <script>
-    // Get the accept and deny buttons
+    // Get buttons
     const acceptButton = document.getElementById("accept");
     const denyButton = document.getElementById("deny");
     const resetButton = document.getElementById("reset");
@@ -58,10 +88,11 @@ const { id } = Astro.params;
         handleStatusChange(studentId, status);
     });
 
+    // Change the status of the student request
     async function handleStatusChange(studentId: string, status: string) {
         try {
             const response = await fetch(
-                "http://localhost:4321/api/students_info/request_status",
+                "http://localhost:4321/api/students_info/request_status", // API endpoint to update student requests
                 {
                     method: "PUT",
                     headers: {
@@ -85,28 +116,3 @@ const { id } = Astro.params;
         }
     }
 </script>
-
-<style>
-    #buttons-container {
-        display: flex;
-        gap: 0.75rem;
-    }
-    .aprove-deny {
-        border-radius: 1rem;
-        padding: 0.25rem 0.5rem;
-        border: 1.5px solid;
-    }
-    #accept {
-        background: #cee9e6;
-        color: #0d9488;
-        border-color: #0d9488;
-    }
-    #deny {
-        background: pink;
-        color: red;
-        border-color: red;
-    }
-    button:hover {
-        opacity: 0.5;
-    }
-</style>
