@@ -12,8 +12,8 @@ const { id } = Astro.params;
 <Layout title="Detalles del estudiante">
     <div>
         <StudentInformation id={id}/>
-        <StudentFiles id={id} client:load />
-        <StudentStatement id={id} client:load />
+        <StudentFiles id={id} />
+        <StudentStatement id={id} />
         <StatusHandler id={id} />
     </div>
 </Layout>
