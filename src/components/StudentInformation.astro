@@ -1,4 +1,5 @@
 ---
+import { API_ROUTES } from "../lib/apiRoutes";
 import type { StudentDetails } from "../types/types";
 const { id } = Astro.params;
 
@@ -24,8 +25,9 @@ let student: StudentDetails = {
 
 // Fetch student details from the API
 try {
+    if(!id) { return; }
     const response = await fetch(
-        `http://localhost:4321/api/students_info/details/${id}`, // API endpoint to get student details
+        API_ROUTES.STUDENT_DETAILS(id), // API endpoint to get student details
     );
 
     if (!response.ok) {

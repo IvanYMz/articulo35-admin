@@ -1,4 +1,5 @@
 ---
+import { API_ROUTES } from "../lib/apiRoutes";
 import type { StudentFiles } from "../types/types";
 
 const { id } = Astro.params;
@@ -7,8 +8,11 @@ let dataError: string | null = null;
 
 // Fetch student files
 try {
+    if(!id) {
+        return;
+    }
     const response = await fetch(
-        `http://localhost:4321/api/students_info/details/student_files/${id}`, // API endpoint to get student files
+        API_ROUTES.STUDENT_FILES(id), // API endpoint to get student files
     );
 
     if (!response.ok) {

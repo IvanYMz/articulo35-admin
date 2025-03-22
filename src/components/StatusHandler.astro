@@ -45,6 +45,7 @@ const { id } = Astro.params;
 </style>
 
 <script>
+    import { API_ROUTES } from "../lib/apiRoutes";
     // Get buttons
     const acceptButton = document.getElementById("accept");
     const denyButton = document.getElementById("deny");
@@ -92,7 +93,7 @@ const { id } = Astro.params;
     async function handleStatusChange(studentId: string, status: string) {
         try {
             const response = await fetch(
-                "http://localhost:4321/api/students_info/request_status", // API endpoint to update student requests
+                API_ROUTES.STUDENT_REQUEST_STATUS, // API endpoint to update student requests
                 {
                     method: "PUT",
                     headers: {

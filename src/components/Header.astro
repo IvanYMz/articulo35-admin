@@ -37,6 +37,7 @@
 </style>
 
 <script>
+    import { API_ROUTES } from "../lib/apiRoutes";
     const signOutButton = document.getElementById("sign-out");
 
     // Sign out button click event
@@ -47,11 +48,9 @@
                 return;
             }
             try {
-                const response = await fetch(
-                    "http://localhost:4321/api/auth/signout", // API endopoint to sign out
-                );
+                const response = await fetch(API_ROUTES.AUTH_SIGNOUT);
                 if (response.ok) {
-                    window.location.href = "http://localhost:4321/signin"; // Redirect to sign-in page if sign out is successful
+                    window.location.href = "/"; // Redirect to sign-in page if sign out is successful
                 } else {
                     alert("Error al cerrar sesión");
                 }

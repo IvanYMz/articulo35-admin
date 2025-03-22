@@ -1,20 +1,5 @@
 ---
 import Layout from "../layouts/Layout.astro";
-
-function verifyTokens() {
-  const accessToken = Astro.cookies.get("sb-access-token");
-  const refreshToken = Astro.cookies.get("sb-refresh-token");
-
-  if (!accessToken || !refreshToken) {
-    return "/signin";
-  }
-  return "/home";
-}
-
-const redirectPath = verifyTokens();
-if (redirectPath) {
-  return Astro.redirect(redirectPath);
-}
 ---
 
 <Layout title="index">
