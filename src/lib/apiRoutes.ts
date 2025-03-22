@@ -6,6 +6,5 @@ export const API_ROUTES = {
     STUDENTS_LIST: `${API_BASE}/api/students_info/requests`,
     STUDENT_FILES: (id: string) => `${API_BASE}/api/students_info/details/student_files/${id}`,
     STUDENT_DETAILS: (id: string) => `${API_BASE}/api/students_info/details/${id}`,
-    STUDENT_STATEMENT: (id: string) => `${API_BASE}/api/students_info/transcription/${id}`,
-    
+    STUDENT_STATEMENT: (id: string) => `${API_BASE}/api/students_info/transcription/${id}`,  
 };
