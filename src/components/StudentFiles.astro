@@ -1,5 +1,6 @@
 ---
 import { API_ROUTES } from "../lib/apiRoutes";
+import pdfFileIcon from "../assets/FileTypePdf.svg";
 import type { StudentFiles } from "../types/types";
 
 const { id } = Astro.params;
@@ -48,7 +49,7 @@ try {
                             class="openFileButton hover:shadow-lg hover:scale-105 cursor-pointer"
                             data-url={file.url}
                         >
-                            <img src="/src/assets/FileTypePdf.svg" alt="Icono de archivo" />
+                            <img src={pdfFileIcon.src} alt="Icono de archivo" />
                             <span>{file.name}</span>
                         </button>
                     </li>

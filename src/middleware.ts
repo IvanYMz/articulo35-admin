@@ -1,24 +1,43 @@
 import { defineMiddleware } from "astro:middleware";
 
-// Middleware to verify the tokens
+// Middleware to handle CORS and verify authentication tokens
 export const onRequest = defineMiddleware(async (context, next) => {
-    // Get the cookies
+    // Handle preflight (CORS OPTIONS requests)
+    if (context.request.method === "OPTIONS") {
+        return new Response(null, {
+            status: 204,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type",
+            },
+        });
+    }
+
+    // Get cookies (tokens)
     const accessToken = context.cookies.get("sb-access-token");
     const refreshToken = context.cookies.get("sb-refresh-token");
 
     // Get the requested URL
     const url = new URL(context.request.url);
 
-    // Exclude API routes and signIn from the token verification
+    // Exclude API routes and sign-in page from token verification
     if (url.pathname.startsWith("/api/") || url.pathname === "/signin") {
-        return next(); // If the URL starts with /api/ or equals to signin, don't apply the middleware
+        const response = await next();
+        
+        // Apply CORS headers to API responses
+        response.headers.set("Access-Control-Allow-Origin", "*");
+        response.headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        response.headers.set("Access-Control-Allow-Headers", "Content-Type");
+
+        return response;
     }
 
-    // If there are no access or refresh tokens, redirect to signin
+    // If no valid tokens, redirect to signin
     if (!accessToken || !refreshToken) {
         return context.redirect("/signin");
     }
 
-    // If everything is fine, continue with the next middleware or the page
+    // Continue to the next middleware or page
     return next();
 });

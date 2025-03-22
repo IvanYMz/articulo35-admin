@@ -1,13 +1,17 @@
+---
+import udgLogo from "../assets/Escudo_UdG.svg";
+import logOutIcon from "../assets/logout.svg";
+---
 <header class="shadow-lg">
     <a href="/">
         <img
-            src="/src/assets/Escudo_UdG.svg"
+            src={udgLogo.src}
             alt="Escudo UDG"
             class="w-6 h-8"
         />
     </a>
     <button id="sign-out">
-        <img src="/src/assets/logout.svg" alt="Cerrar sesión" />
+        <img src={logOutIcon.src} alt="Cerrar sesión" />
         Cerrar sesión
     </button>
 </header>

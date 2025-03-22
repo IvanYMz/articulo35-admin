@@ -1,4 +1,6 @@
 ---
+import udgLogo from "../assets/Escudo_UdG.svg";
+
 interface Props {
     title: string;
 };
@@ -17,7 +19,7 @@ const { title } = Astro.props;
 	</head>
 	<body class="h-screen p-4 bg-[#2D3C5A]">
 		<div class="flex flex-col justify-center items-center bg-[#2D3C5A] w-full h-full rounded gap-4">
-			<img src="/src/assets/Escudo_UdG.svg" alt="Escudo UDG" class="w-32 h-42" />
+			<img src={udgLogo.src} alt="Escudo UDG" class="w-32 h-42" />
 			<div class="flex flex-col justify-center items-center text-white">
 				<h1 class="text-2xl leading-8 font-semibold" >Artículo 35 CUCEI</h1>
 				<h2 class="text-xl leading-7 font-semibold">¡Ingrese a su cuenta!</h2>

@@ -1,5 +1,6 @@
 ---
 import { API_ROUTES } from "../lib/apiRoutes";
+import fileDescription from "../assets/file-description.svg"
 import type { Student } from "../types/types";
 
 const statusTranslations: Record<string, string> = {
@@ -44,7 +45,7 @@ try {
                         class="student-details"
                         href={`/students/${student.student_id}`}
                     >
-                        <img src="src/assets/file-description.svg" alt=""/>
+                        <img src={fileDescription.src} alt=""/>
                         Ver detalles
                     </a>
                 </li>

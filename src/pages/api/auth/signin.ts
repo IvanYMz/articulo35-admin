@@ -64,7 +64,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     }
 
     if (userRole?.role === "administrator") {
-      return redirect("/home");
+      return redirect("/");
     }
 
     // Si el usuario no es administrador, borra los tokens y redirige

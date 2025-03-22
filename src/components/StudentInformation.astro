@@ -1,5 +1,13 @@
 ---
 import { API_ROUTES } from "../lib/apiRoutes";
+import codeIcon from "../assets/CodeIcon.svg";
+import DegreeIcon from "../assets/DegreeIcon.svg";
+import GradesIcon from "../assets/GradesIcon.svg";
+import CalendarStartIcon from "../assets/CalendarStartIcon.svg";
+import CalendarDoneIcon from "../assets/CalendarDoneIcon.svg";
+import CompletedIcon from "../assets/CompletedIcon.svg";
+import RemainingIcon from "../assets/RemainingIcon.svg";
+import DepartmentIcon from "../assets/DepartmentIcon.svg";
 import type { StudentDetails } from "../types/types";
 const { id } = Astro.params;
 
@@ -52,38 +60,38 @@ try {
             <h2>Información Académica</h2>
             <ul id="academic-list-info">
                 <li>
-                    <img src="/src/assets/CodeIcon.svg" alt="Icono de nombre" />
+                    <img src={codeIcon.src} alt="Icono de nombre" />
                     <p>Código: {student.academicRecords.student_code}</p>
                 </li>
                 <li>
-                    <img src="/src/assets/DegreeIcon.svg" alt="Icono de codigo"/>
+                    <img src={DegreeIcon.src} alt="Icono de codigo"/>
                     <p>Carrera: {student.academicRecords.career}</p>
                 </li>
                 <li>
-                    <img src="/src/assets/GradesIcon.svg" alt="Icono de codigo"/>
+                    <img src={GradesIcon.src} alt="Icono de codigo"/>
                     <p>Promedio: {student.academicRecords.average_score}</p>
                 </li>
                 <li>
-                    <img src="/src/assets/CalendarStartIcon.svg" alt="Icono de ciclo de ingreso"/>
+                    <img src={CalendarStartIcon.src} alt="Icono de ciclo de ingreso"/>
                     <p>Ciclo de Ingreso: {student.academicRecords.enrollment_cycle}</p>
                 </li>
                 <li>
-                    <img src="/src/assets/CalendarDoneIcon.svg" alt="Icono de ciclo de egreso"/>
+                    <img src={CalendarDoneIcon.src} alt="Icono de ciclo de egreso"/>
                     <p>Ciclo de Egreso: {student.academicRecords.graduation_cycle}</p>
                 </li>
                 <li>
                     <img
-                        src="/src/assets/CompletedIcon.svg"
+                        src={CompletedIcon.src}
                         alt="Icono de creditos aprobados"
                     />
                     <p>Créditos Aprobados: {student.academicRecords.approved_credits}</p>
                 </li>
                 <li>
-                    <img src="/src/assets/RemainingIcon.svg" alt="Icono de creditos faltantes"/>
+                    <img src={RemainingIcon.src} alt="Icono de creditos faltantes"/>
                     <p>Créditos Pendientes: {student.academicRecords.pending_credits}</p>
                 </li>
                 <li>
-                    <img src="/src/assets/DepartmentIcon.svg" alt="Icono de departamento"/>
+                    <img src={DepartmentIcon.src} alt="Icono de departamento"/>
                     <p>División: {student.academicRecords.division}</p>
                 </li>
             </ul>

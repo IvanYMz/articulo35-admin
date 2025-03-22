@@ -1,4 +1,6 @@
 ---
+import refreshIcon from "../assets/RefreshIcon.svg";
+
 const { id } = Astro.params;
 ---
 
@@ -15,7 +17,7 @@ const { id } = Astro.params;
         data-status="under_review"
         title="En revisión"
     >
-        <img src="/src/assets/RefreshIcon.svg" alt="Refresh" />
+        <img src={refreshIcon.src} alt="Refresh" />
     </button>
 </div>
 
