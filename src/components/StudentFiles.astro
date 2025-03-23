@@ -1,49 +1,21 @@
 ---
-import { API_ROUTES } from "../lib/apiRoutes";
+// Recibe los props
 import pdfFileIcon from "../assets/FileTypePdf.svg";
-import type { StudentFiles } from "../types/types";
 
-const { id } = Astro.params;
-let data: StudentFiles | null = null;
-let dataError: string | null = null;
-
-// Fetch student files
-try {
-    if(!id) {
-        return;
-    }
-    const response = await fetch(
-        API_ROUTES.STUDENT_FILES(id), // API endpoint to get student files
-    );
-
-    if (!response.ok) {
-        throw new Error(`Error al obtener los archivos: ${response.status} - ${response.statusText}`);
-    }
-
-    try {
-        data = (await response.json()) as StudentFiles; // Parse the response as JSON and cast it to 'StudentFiles' type
-    } catch (jsonError) {
-        throw new Error("Error al procesar la respuesta del servidor. Verifica el formato JSON.");
-    }
-} catch (error) {
-    dataError = (error as Error).message;
-    data = null;
-}
+const { files, error } = Astro.props;
 ---
-
-<!-- Handle error -->
-{dataError && (
-    <div class="error-box">
-        <p>{dataError}</p>
-    </div>
-)}
 
 <div>
     <h2>Archivos</h2>
-    {
-        data && data.length > 0 ? (
+
+    {error ? (
+        <div class="error-box">
+            <p>{error}</p>
+        </div>
+    ) : (
+        files && files.length > 0 ? (
             <ul>
-                {data.map((file) => ( // Display the list of files
+                {files.map((file: { url: unknown; name: unknown; }) => (
                     <li>
                         <button
                             class="openFileButton hover:shadow-lg hover:scale-105 cursor-pointer"
@@ -56,9 +28,9 @@ try {
                 ))}
             </ul>
         ) : (
-            !dataError && <p>No hay documentos disponibles.</p>
+            <p>No hay documentos disponibles.</p>
         )
-    }
+    )}
 </div>
 
 <style>
@@ -127,5 +99,3 @@ try {
         });
     });
 </script>
-
-

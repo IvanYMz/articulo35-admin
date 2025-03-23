@@ -1,6 +1,5 @@
 ---
-import { API_ROUTES } from "../lib/apiRoutes";
-import codeIcon from "../assets/CodeIcon.svg";
+import CodeIcon from "../assets/CodeIcon.svg";
 import DegreeIcon from "../assets/DegreeIcon.svg";
 import GradesIcon from "../assets/GradesIcon.svg";
 import CalendarStartIcon from "../assets/CalendarStartIcon.svg";
@@ -8,45 +7,8 @@ import CalendarDoneIcon from "../assets/CalendarDoneIcon.svg";
 import CompletedIcon from "../assets/CompletedIcon.svg";
 import RemainingIcon from "../assets/RemainingIcon.svg";
 import DepartmentIcon from "../assets/DepartmentIcon.svg";
-import type { StudentDetails } from "../types/types";
-const { id } = Astro.params;
 
-// Initialize a default student object with empty values
-let student: StudentDetails = {
-    personalData: {
-        student_id: 0,
-        full_name: "",
-        email: "",
-    },
-    academicRecords: {
-        student_code: "",
-        career: "",
-        average_score: 0,
-        enrollment_cycle: "",
-        graduation_cycle: "",
-        approved_credits: 0,
-        pending_credits: 0,
-        division: "",
-    },
-    requests: [],
-};
-
-// Fetch student details from the API
-try {
-    if(!id) { return; }
-    const response = await fetch(
-        API_ROUTES.STUDENT_DETAILS(id), // API endpoint to get student details
-    );
-
-    if (!response.ok) {
-        console.error("Error fetching student information");
-    } else {
-        // Parse the response as JSON and cast it to the `StudentDetails` type
-        student = (await response.json()) as StudentDetails;
-    }
-} catch (err) {
-    console.error("Fetch error:", err);
-}
+const { student } = Astro.props;
 ---
 
 <section>
@@ -60,38 +22,35 @@ try {
             <h2>Información Académica</h2>
             <ul id="academic-list-info">
                 <li>
-                    <img src={codeIcon.src} alt="Icono de nombre" />
+                    <img src={CodeIcon.src} alt="Icono de código" />
                     <p>Código: {student.academicRecords.student_code}</p>
                 </li>
                 <li>
-                    <img src={DegreeIcon.src} alt="Icono de codigo"/>
+                    <img src={DegreeIcon.src} alt="Icono de carrera" />
                     <p>Carrera: {student.academicRecords.career}</p>
                 </li>
                 <li>
-                    <img src={GradesIcon.src} alt="Icono de codigo"/>
+                    <img src={GradesIcon.src} alt="Icono de promedio" />
                     <p>Promedio: {student.academicRecords.average_score}</p>
                 </li>
                 <li>
-                    <img src={CalendarStartIcon.src} alt="Icono de ciclo de ingreso"/>
+                    <img src={CalendarStartIcon.src} alt="Icono de ciclo de ingreso" />
                     <p>Ciclo de Ingreso: {student.academicRecords.enrollment_cycle}</p>
                 </li>
                 <li>
-                    <img src={CalendarDoneIcon.src} alt="Icono de ciclo de egreso"/>
+                    <img src={CalendarDoneIcon.src} alt="Icono de ciclo de egreso" />
                     <p>Ciclo de Egreso: {student.academicRecords.graduation_cycle}</p>
                 </li>
                 <li>
-                    <img
-                        src={CompletedIcon.src}
-                        alt="Icono de creditos aprobados"
-                    />
+                    <img src={CompletedIcon.src} alt="Icono de créditos aprobados" />
                     <p>Créditos Aprobados: {student.academicRecords.approved_credits}</p>
                 </li>
                 <li>
-                    <img src={RemainingIcon.src} alt="Icono de creditos faltantes"/>
+                    <img src={RemainingIcon.src} alt="Icono de créditos pendientes" />
                     <p>Créditos Pendientes: {student.academicRecords.pending_credits}</p>
                 </li>
                 <li>
-                    <img src={DepartmentIcon.src} alt="Icono de departamento"/>
+                    <img src={DepartmentIcon.src} alt="Icono de departamento" />
                     <p>División: {student.academicRecords.division}</p>
                 </li>
             </ul>
@@ -99,17 +58,15 @@ try {
 
         <div id="requests">
             <h2>Materias Solicitadas</h2>
-            {
-                student.requests.length > 0 ? (
-                    <ul id="subjects">
-                        {student.requests.map((request) => (
-                            <li><span class="font-semibold">{request.available_subjects.nrc}</span> - {request.available_subjects.name}</li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p>No requests</p>
-                )
-            }
+            {student.requests.length > 0 ? (
+                <ul id="subjects">
+                    {student.requests.map((request: { available_subjects: { nrc: unknown; name: unknown; }; }) => (
+                        <li><span class="font-semibold">{request.available_subjects.nrc}</span> - {request.available_subjects.name}</li>
+                    ))}
+                </ul>
+            ) : (
+                <p>No requests</p>
+            )}
         </div>
     </main>
 </section>

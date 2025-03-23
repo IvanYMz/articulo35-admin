@@ -4,16 +4,58 @@ import StudentInformation from "../../components/StudentInformation.astro";
 import StatusHandler from "../../components/StatusHandler.astro";
 import StudentFiles from "../../components/StudentFiles.astro";
 import StudentStatement from "../../components/StudentStatement.astro";
+import { API_ROUTES } from "../../lib/apiRoutes";
+import type { StudentDetails, StudentFiles as StudentFilesType, UrlResponse } from "../../types/types";
 
-// Extract the `id` parameter from the Astro route (selected student)
 const { id } = Astro.params;
+
+if (!id) {
+    throw new Error("ID de estudiante no proporcionado");
+}
+
+// Fetch all necessary data in parallel
+const [studentRes, filesRes, statementRes] = await Promise.all([
+    fetch(API_ROUTES.STUDENT_DETAILS(id)),
+    fetch(API_ROUTES.STUDENT_FILES(id)),
+    fetch(API_ROUTES.STUDENT_STATEMENT(id)),
+]);
+
+// Process responses
+const student: StudentDetails = studentRes.ok
+    ? await studentRes.json()
+    : {
+          personalData: { student_id: 0, full_name: "", email: "" },
+          academicRecords: {
+              student_code: "",
+              career: "",
+              average_score: 0,
+              enrollment_cycle: "",
+              graduation_cycle: "",
+              approved_credits: 0,
+              pending_credits: 0,
+              division: "",
+          },
+          requests: [],
+      };
+
+const studentFiles: StudentFilesType | null = filesRes.ok
+    ? await filesRes.json()
+    : null;
+const studentStatement: UrlResponse = statementRes.ok
+    ? await statementRes.json()
+    : {
+          audioUrl: "",
+          audioFileName: "",
+          transcriptionContent: { content: "", textFileName: "" },
+          error: "No se pudo obtener la declaración del estudiante",
+      };
 ---
 
 <Layout title="Detalles del estudiante">
     <div>
-        <StudentInformation id={id}/>
-        <StudentFiles id={id} />
-        <StudentStatement id={id} />
+        <StudentInformation student={student} />
+        <StudentFiles files={studentFiles} />
+        <StudentStatement statement={studentStatement} />
         <StatusHandler id={id} />
     </div>
 </Layout>
