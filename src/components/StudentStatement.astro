@@ -2,61 +2,62 @@
 import type { UrlResponse } from "../types/types";
 
 // Recibir el parámetro
+const { id } = Astro.params;
 const { statement } = Astro.props;
 const data: UrlResponse = statement;
 ---
-    {
-        data?.error ? (
-            <p style="color: red;">Error: {data.error}</p>
-        ) : (
-            <div id="student-statement">
-                <div id="declaration">
-                    <h2>Declaración</h2>
-                    {data?.audioUrl && data?.audioFileName !== '.emptyFolderPlaceholder' ? (
+
+{
+    data?.error ? (
+        <p style="color: red;">Error: {data.error}</p>
+    ) : (
+        <div id="student-statement" data-student-id={id}>
+            <div id="declaration">
+                <h2>Declaración</h2>
+                {data?.audioUrl && data?.audioFileName !== '.emptyFolderPlaceholder' ? (
                     <h4>Audio: {data?.audioFileName}</h4>
-                        <audio controls>
-                            <source src={data.audioUrl} type="audio/mpeg" />
-                            Your browser does not support the audio element.
-                        </audio>
-                    ) : (
-                        <p>Sin archivo de audio. Por favor, suba uno.</p>
+                    <audio controls>
+                        <source src={data.audioUrl} type="audio/mpeg" />
+                        Your browser does not support the audio element.
+                    </audio>
+                ) : (
+                    <p>Sin archivo de audio. Por favor, suba uno.</p>
 
-                        <form
-                            id="uploadForm"
-                            data-id={Astro.params.id}
-                            data-audioFileName={data.audioFileName}
-                            data-textFileName={data.transcriptionContent?.textFileName}
-                        >
-                            <input
-                                type="file"
-                                id="audioFile"
-                                accept="audio/*"
-                                required
-                                />
-                            <button id="submit_button" type="submit">Subir audio</button>
-                        </form>
-                    )}
-                </div>
-
-                <div id="transcription">
-                    <h4>Transcription</h4>
-                    {data.transcriptionContent?.content ? (
-                        <p id="transcriptionContent">
-                            {data?.transcriptionContent?.content}
-                        </p>
-                    ) : data?.audioUrl && data?.audioFileName !== '.emptyFolderPlaceholder' ? (
-                        <form id="transcribeForm" data-id={Astro.params.id}>
-                            <button type="submit">Transcribir Audio</button>
-                        </form>
-                    ) : (
-                        <p>
-                            No es posible transcribir. Suba un archivo de audio primero.
-                        </p>
-                    )}
-                </div>
+                    <form
+                        id="uploadForm"
+                        data-audioFileName={data.audioFileName}
+                        data-textFileName={data.transcriptionContent?.textFileName}
+                    >
+                        <input
+                            type="file"
+                            id="audioFile"
+                            accept="audio/*"
+                            required
+                        />
+                        <button id="submit_button" type="submit">Subir audio</button>
+                    </form>
+                )}
             </div>
-        )
-    }
+
+            <div id="transcription">
+                <h4>Transcripción</h4>
+                {data.transcriptionContent?.content ? (
+                    <p id="transcriptionContent">
+                        {data?.transcriptionContent?.content}
+                    </p>
+                ) : data?.audioUrl && data?.audioFileName !== '.emptyFolderPlaceholder' ? (
+                    <form id="transcribeForm">
+                        <button type="submit">Transcribir Audio</button>
+                    </form>
+                ) : (
+                    <p>
+                        No es posible transcribir. Suba un archivo de audio primero.
+                    </p>
+                )}
+            </div>
+        </div>
+    )
+}
 
 <style>
     #student-statement {
@@ -115,46 +116,50 @@ const data: UrlResponse = statement;
 
 <script>
     import { io, Socket } from "socket.io-client";
-    const form = document.getElementById("uploadForm") as HTMLFormElement;
+    const uploadForm = document.getElementById("uploadForm") as HTMLFormElement;
+    const transcribeForm = document.getElementById("transcribeForm") as HTMLFormElement;
     let socket: Socket | null = null;
 
-    if (form) {
-        form.addEventListener("submit", async (event) => {
+    // Obtener el id del estudiante desde el contenedor
+    const studentId = document.getElementById("student-statement")?.getAttribute("data-student-id");
+
+    // Subir el audio
+    if (uploadForm) {
+        uploadForm.addEventListener("submit", async (event) => {
             event.preventDefault();
 
-            const studentId = form.getAttribute("data-id") as string;
-            const audioFileName = form.getAttribute("data-audioFileName") as string;
-            const textFileName = form.getAttribute("data-textFileName") as string;
+            const audioFileName = uploadForm.getAttribute("data-audioFileName") as string;
+            const textFileName = uploadForm.getAttribute("data-textFileName") as string;
             const fileInput = document.getElementById("audioFile") as HTMLInputElement;
 
             if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
                 alert("Please select an audio file.");
                 return;
-            };
+            }
 
             if (audioFileName) {
                 const confirmReplace = confirm(
-                    `Un archivo de audio (${audioFileName}) y su transcripción ya existen. ¿Quieres reemplazarlos?`,
+                    `Un archivo de audio (${audioFileName}) y su transcripción ya existen. ¿Quieres reemplazarlos?`
                 );
                 if (!confirmReplace) {
                     return;
                 }
-            };
+            }
 
             const file = fileInput.files[0];
             const formData = new FormData();
             formData.append("audio", file);
-            formData.append("id", studentId);
+            formData.append("id", studentId as string);
             formData.append("audioFileName", audioFileName);
             formData.append("textFileName", textFileName);
 
             try {
                 const response = await fetch(
-                    "http://localhost:4321/api/students_info/transcription/upload_statement",
+                    "https://dmzctls1-4321.usw3.devtunnels.ms/api/students_info/transcription/upload_statement",
                     {
                         method: "PUT",
                         body: formData,
-                    },
+                    }
                 );
 
                 if (response.ok) {
@@ -170,50 +175,58 @@ const data: UrlResponse = statement;
         });
     }
 
-    const transcribeForm = document.getElementById("transcribeForm") as HTMLFormElement;
-
+    // Enviar solicitud de transcripción
     if (transcribeForm) {
-        transcribeForm.addEventListener("submit", async (event) => {
-            event.preventDefault();
-            const userId = form.getAttribute("data-id") as string;
+    transcribeForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-            socket = io("http://localhost:5000");
-            socket.emit("start_transcription", { user_id: userId });
+        const transcribeButton = transcribeForm.querySelector("button");
+        if (transcribeButton) {
+            transcribeButton.disabled = true;
+            transcribeButton.style.cursor = "not-allowed";
+            transcribeButton.textContent = "Transcribiendo...";
+        }
 
-            alert("Solicitud de transcripción enviada!");
+        socket = io("https://ns99gpgf-5000.usw3.devtunnels.ms");
+        socket.emit("start_transcription", { user_id: studentId });
 
-            socket.on("transcription_completed", (data) => {
-                console.log("Transcription completed:", data);
-                alert("Transcripción completada!\nPor favor, recargue la página para ver los resultados.");
+        alert("Solicitud de transcripción enviada!");
 
-                if (socket) {
-                    socket.disconnect();
-                    console.log("Socket desconectado");
-                }
-            });
+        socket.on("transcription_completed", (data) => {
+            console.log("Transcription completed:", data);
+            alert("Transcripción completada!\nLa página se recargará para mostrar los resultados.");
 
-            try {
-                const response = await fetch(
-                    "http://127.0.0.1:5000/transcribe",
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ user_id: userId }),
-                    },
-                );
-
-                if (!response.ok) {
-                    throw new Error("Error en la transcripción");
-                }
-
-                const data = await response.json();
-                console.log("Transcription result: ", data.transcription);
-            } catch (error) {
-                console.error("Error:", error);
-                alert("Hubo un problema con la transcripción.");
+            if (socket) {
+                socket.disconnect();
+                console.log("Socket desconectado");
             }
+
+            window.location.reload(); // Recargar la página al finalizar
         });
-    }
+
+        try {
+            const response = await fetch(
+                "https://ns99gpgf-5000.usw3.devtunnels.ms/transcribe",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ user_id: studentId }),
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Error en la transcripción");
+            }
+
+            const data = await response.json();
+            console.log("Transcription result: ", data.transcription);
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Hubo un problema con la transcripción.");
+        }
+    });
+}
+
 </script>

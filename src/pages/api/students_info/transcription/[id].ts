@@ -63,7 +63,7 @@ async function getFileContent(id: string, folder: string): Promise<Transcription
 
     // Convert the file content to a string
     const buffer = await data.arrayBuffer();
-    const decoder = new TextDecoder("ISO-8859-1"); 
+    const decoder = new TextDecoder("utf-8"); 
     const content = decoder.decode(buffer);
 
     const transcriptionFile = { content: content, textFileName: textFileName };

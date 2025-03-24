@@ -32,7 +32,7 @@ export const GET: APIRoute = async ({params}) => {
             });
         };
 
-        const evidenceFileName = dataEvidence[0].name; // Get the name of the evidence file
+        const evidenceFileName = dataEvidence[0].name === '.emptyFolderPlaceholder' ? dataEvidence[1].name : dataEvidence[0].name; // Get the name of the evidence file
 
         // Get the guardian letter file from the student's folder
         const { data: dataGuardian, error: errorFolder } = await supabase
@@ -53,7 +53,7 @@ export const GET: APIRoute = async ({params}) => {
             });
         };
 
-        const letterFileName = dataGuardian[0].name; // Get the name of the guardian letter file
+        const letterFileName = dataGuardian[0].name === '.emptyFolderPlaceholder' ? dataGuardian[1].name : dataGuardian[0].name; // Get the name of the guardian letter file
 
         // Generate signed URLs for the files
         const { data: dataSignedUrls, error: errorSignedlUrls } = await supabase
